@@ -9,6 +9,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; EXTENSIONS PATH - pls update as needed
+;; based on where this file is
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define *myutils* "/Users/michele.pasin/Dropbox/code/extempore/src/extempore-extensions/init/")
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load a local file and print out some info
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40,14 +50,6 @@
 (sys:load_verbose  "libs/core/pc_ivl.xtm")  ;; pitch classes lib
 (sys:load_verbose "libs/external/portmidi.xtm")  ;; midi
 (pm_initialize)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; UTILS PATH - pls update as needed
-;; with this folder full path
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define *myutils* "/Users/michele.pasin/Dropbox/code/extempore/xtm-hacking/init-extempore/")
 
 
 
