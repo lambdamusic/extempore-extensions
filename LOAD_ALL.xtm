@@ -11,18 +11,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; SETTING: EXTENSIONS PATH 
-;; => pls update as needed with this folder full path
+;; DEFAULT SETTINGS
+;; => pls update as needed based on your installation
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define *extensions-path* 
   "/Users/michele.pasin/Dropbox/code/extempore/src/xtm-extensions/init/")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(define *DEFAULT_MIDI_DEVICE_NAME* 
+  "IAC Driver Extempore Bus")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -93,22 +95,19 @@
 ;; and associating it to the  *mididevice* symbol. 
 ;; This symbol is needed by the various play functions. 
 ;; 
-;; Pls update as needed by providing
-;; the midi output device name you'd normally use
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (log-info '**************)
 (log-info '* 'SETTING 'UP 'MIDI 'RUNTIME '*)
 (log-info '**************)
 
-(define *DEFAULT_DEVICE_NAME* "IAC Driver Extempore Bus")
 (pm_print_devices)
 
 (define *mididevice* (pm_create_output_stream 
-  (pm_output_device_with_name *DEFAULT_DEVICE_NAME*)))
+  (pm_output_device_with_name *DEFAULT_MIDI_DEVICE_NAME*)))
 
 (log-info '**************)
 (log-info '* 'RUNTIME 'READY '*)
-(log-info '* 'SYMBOL '*mididevice* 'mapped 'to *DEFAULT_DEVICE_NAME* '*)
+(log-info '* 'SYMBOL '*mididevice* 'mapped 'to *DEFAULT_MIDI_DEVICE_NAME* '*)
 (log-info '**************)
 (log-info '* 'XTM-EXTENSIONS  *XTM-EXTENSIONS-VERSION*  'LOADED 'SUCCESSFULLY '*)
 (log-info '* 'READY 'TO 'ROCK! '*)

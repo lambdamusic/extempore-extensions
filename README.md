@@ -8,6 +8,8 @@ A bunch of scheme abstractions that I developed in order to create Extempore mus
 
 No documentation yet, but various examples of what the extensions look like are available on [The Musical Code](https://github.com/lambdamusic/The-Musical-Code) and its counterpart [YouTube channel](https://www.youtube.com/channel/UCanqSICbxzRNEZGMlu8qfyw).  
 
+NOTE: The extensions have been developed to support **MIDI** composition / livecoding primarily.
+
 Files 
 
 * `init_midi` helpers for playing midi instruments
@@ -19,18 +21,23 @@ Files
 
 ## How to Use
 
-### 1. Grab the repo and update settings
+### 1. Grab the repo and update its configuration
 
-The main setting to update is in [LOAD_ALL.xtm](https://github.com/lambdamusic/extempore-extensions/blob/main/LOAD_ALL.xtm) and should reference your local filepath where the extensions files have been saved. 
-
-For example for me this is: 
+After cloning the repo, there are a couple of settings at the top of [LOAD_ALL.xtm](https://github.com/lambdamusic/extempore-extensions/blob/main/LOAD_ALL.xtm) that should be updated.
 
 ```scheme
 (define *extensions-path* 
   "/Users/michele.pasin/Dropbox/code/extempore/src/xtm-extensions/init/")
+
+(define *DEFAULT_MIDI_DEVICE_NAME* 
+  "IAC Driver Extempore Bus")
 ```
 
-Update as needed based on your installation. 
+Explanation: 
+
+* `*extensions-path*`: your local filepath where the extensions files have been saved
+* `*DEFAULT_MIDI_DEVICE_NAME*`: the main MIDI device you are using ( as displayed with `(pm_print_devices)` ) 
+
 
 ### 2. Set up the Extempore startup command
 
@@ -49,18 +56,6 @@ export EXTEMPORE_RUNTIME="/your/extempore/runtime/installation/"
 export EXTEMPORE_EXTENSIONS="/your/path/to/these/extensions/"
 
 alias xtm-plus="cd $EXTEMPORE_RUNTIME;./extempore --frames 256 --run '$EXTEMPORE_EXTENSIONS'LOAD_ALL.xtm"
-```
-
-**MIDI RUNTIME** 
-
-The startup script connects to a predefined MIDI device name. You'd probably want to update that based on your set up. 
-
-```scheme
-(define *DEFAULT_DEVICE_NAME* "IAC Driver Extempore Bus")
-(pm_print_devices)
-
-(define *mididevice* (pm_create_output_stream 
-  (pm_output_device_with_name *DEFAULT_DEVICE_NAME*)))
 ```
 
 
