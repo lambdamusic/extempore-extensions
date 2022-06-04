@@ -1,0 +1,183 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DRUMRACKS SYMBOLS & UTILITIES
+;;
+;; Status: alpha
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define *drumracks* "path/to/this/folder/")
+
+;; utility to load midi mappings from a default location
+;; used for drumracks symbols definition 
+(define load_drum_mappings
+  (lambda (subpath)
+    (sys:load_verbose (string-append *drumracks* subpath))
+    ))
+
+
+; util for testing out samples positions
+; (let ((beat (*metro* 'get-beat)) (note 123))
+;   (log-info note)
+;   (play note 90 1/8 1))
+
+;; Mappings for 'Dystopia' kit
+;; created on 2021-01-17
+
+;; load with 
+;; (load_drum_mappings "dystopia")
+
+;; 1 to 24  // bd
+;; 25 to 58   // sn
+;; 59 to 101   // hh
+;; 102 to 108  // cy
+;; 109 to 118  // cr
+;; 119 to 123  // cl
+;; 124 to 125  // co
+;; 126  // tr
+; 
+
+
+
+;;
+;; bd samples 1-24
+(define bd0 1)
+(define bd1 2)
+(define bd2 3)
+(define bd3 4)
+(define bd4 5)
+(define bd5 6)
+(define bd6 7)
+(define bd7 8)
+(define bd8 9)
+(define bd9 10)
+(define bd10 11)
+(define bd11 12)
+(define bd12 13)
+(define bd13 14)
+(define bd14 15)
+(define bd15 16)
+(define bd16 17)
+(define bd17 18)
+(define bd18 19)
+(define bd19 20)
+(define bd20 21)
+(define bd21 22)
+(define bd22 23)
+(define bd23 24)
+;;
+;; sn samples 25-58
+(define sn0 25)
+(define sn1 26)
+(define sn2 27)
+(define sn3 28)
+(define sn4 29)
+(define sn5 30)
+(define sn6 31)
+(define sn7 32)
+(define sn8 33)
+(define sn9 34)
+(define sn10 35)
+(define sn11 36)
+(define sn12 37)
+(define sn13 38)
+(define sn14 39)
+(define sn15 40)
+(define sn16 41)
+(define sn17 42)
+(define sn18 43)
+(define sn19 44)
+(define sn20 45)
+(define sn21 46)
+(define sn22 47)
+(define sn23 48)
+(define sn24 49)
+(define sn25 50)
+(define sn26 51)
+(define sn27 52)
+(define sn28 53)
+(define sn29 54)
+(define sn30 55)
+(define sn31 56)
+(define sn32 57)
+(define sn33 58)
+;;
+;; hh samples 59-101
+(define hh0 59)
+(define hh1 60)
+(define hh2 61)
+(define hh3 62)
+(define hh4 63)
+(define hh5 64)
+(define hh6 65)
+(define hh7 66)
+(define hh8 67)
+(define hh9 68)
+(define hh10 69)
+(define hh11 70)
+(define hh12 71)
+(define hh13 72)
+(define hh14 73)
+(define hh15 74)
+(define hh16 75)
+(define hh17 76)
+(define hh18 77)
+(define hh19 78)
+(define hh20 79)
+(define hh21 80)
+(define hh22 81)
+(define hh23 82)
+(define hh24 83)
+(define hh25 84)
+(define hh26 85)
+(define hh27 86)
+(define hh28 87)
+(define hh29 88)
+(define hh30 89)
+(define hh31 90)
+(define hh32 91)
+(define hh33 92)
+(define hh34 93)
+(define hh35 94)
+(define hh36 95)
+(define hh37 96)
+(define hh38 97)
+(define hh39 98)
+(define hh40 99)
+(define hh41 100)
+(define hh42 101)
+;;
+;; cy samples 102-108
+(define cy0 102)
+(define cy1 103)
+(define cy2 104)
+(define cy3 105)
+(define cy4 106)
+(define cy5 107)
+(define cy6 108)
+;;
+;; cr samples 109-118
+(define cr0 109)
+(define cr1 110)
+(define cr2 111)
+(define cr3 112)
+(define cr4 113)
+(define cr5 114)
+(define cr6 115)
+(define cr7 116)
+(define cr8 117)
+(define cr9 118)
+;;
+;; cl samples 119-123
+(define cl0 119)
+(define cl1 120)
+(define cl2 121)
+(define cl3 122)
+(define cl4 123)
+;;
+;; co samples 124-125
+(define co0 124)
+(define co1 125)
+;;
+;; tr samples 126-126
+(define tr0 126)

@@ -1,0 +1,574 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;; LEGACY STUFF UNTESTED IN EXTEMPORE OR NOT USED NO MORE
+;; 
+;;  -- not loaded at startup -- 
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+
+;
+;
+;; SAMPLE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Play MIDI for Ableton Live Drumkits 
+; Goal is to make it easier to access kits as normally organized in Live, using 1-16 numbers 
+; Defaults to channel 9
+; Pitch start at 36 (ie 1 == 36, 2 == 37) 
+; Kit samples go left to right, bottom to top
+; eg 36 . . 39 (1st row), 40 . . 43 (2nd row)
+;
+;
+; Args:
+; - offset [default = 0]
+; - pitch
+; - velocity/ vol
+; - dur in beats
+; 
+; Example:
+; (define *mididevice* (pm_create_output_stream 1))
+; (let ((beat (*metro* 'get-beat)))
+;     (sample 1 90 1/2)     ;; no offset
+;     (sample 1/2 1 90 1/2) ;; offset 1/2
+;     (sample 1/2 1 90 1/2 3) ;; override midi channel => 3
+;     ))
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (sample . args)
+        (cond 
+             ((length-equal? args 1)
+                ; 1 arg: pitch
+                `(play-midi-note 
+                                (*metro* beat) 
+                                *mididevice*  ;; constant
+                                (+ 35 (real->integer ,(car args)))  ;; pitch
+                                90  ;; vol
+                                (*metro* 'dur 1/2) ;; dur default
+                                8)) ;; midi always 8 == 9 in LIVE  
+              ((length-equal? args 2)
+                ; 2 args: pitch, vol
+                `(play-midi-note 
+                                (*metro* beat) 
+                                *mididevice*  ;; constant
+                                (+ 35 (real->integer ,(car args)))  ;; pitch
+                                (real->integer ,(cadr args))  ;; vol
+                                (*metro* 'dur 1/2) ;; dur default
+                                8)) ;; midi always 8 == 9 in LIVE   
+              ((length-equal? args 3)
+                ; 3 args => pitch, vol, dur
+                `(play-midi-note 
+                                (*metro* beat) 
+                                *mididevice*  ;; constant
+                                (+ 35 (real->integer ,(car args)))  ;; pitch
+                                (real->integer ,(cadr args))  ;; vol
+                                (*metro* 'dur ,(caddr args)) ;; dur / requires beat defined
+                                8)) ;; midi always 8 == 9 in LIVE 
+              ((length-equal? args 4) 
+                ; 4 args => offset, pitch, vol, dur
+                `(play-midi-note (*metro* (+ beat ,(car args)))                
+                                *mididevice*
+                                (+ 35 (real->integer ,(cadr args)))  ;; pitch
+                                (real->integer ,(caddr args))  ;; vol
+                                (*metro* 'dur ,(cadddr args)) ;; dur / requires beat defined
+                                8))                               
+              ((length-equal? args 5) 
+                ; 5 args => offset, pitch, vol, dur, midi channel
+                `(play-midi-note (*metro* (+ beat ,(car args)))                
+                                *mididevice*
+                                (+ 35 (real->integer ,(cadr args)))  ;; pitch
+                                (real->integer ,(caddr args))  ;; vol
+                                (*metro* 'dur ,(cadddr args)) ;; dur / requires beat defined
+                                (- (real->integer ,(caddddr args)) 1))) ;; ch, 0-based in xtm
+
+              (else (println 'Too 'many 'arguments)) 
+        ))
+)
+
+
+
+
+
+
+
+
+
+
+;; LEGACY
+; wrapper on pc:make-chord-fixed 
+(define mu:chord
+   (lambda (root chord-sym)
+      (pc:make-chord-fixed root 4 (pc:chord root chord-sym))))
+(if #f
+   (println (mu:chord 60 '-7)))
+
+
+
+;; LEGACY
+;; wrapping the pc:scale so that we can pass any note and obtain the relative scale
+(define mu:scale
+   (lambda (base mode)
+      (map (lambda (x)
+              (+ (- base (modulo base 12)) x))
+           (pc:scale (modulo base 12) mode))))
+(when #f
+      (pc:scale 2 'ionian)
+      (mu:scale 62 'ionian))
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; VOLUMEFROMBEAT
+;; 2019-05-05: haven't test in extempore
+;
+; 2012-03-25: changed name: 'amodulo'
+;;
+;; funzione cui passo 
+; a) quanto dura il loop 
+; b) a ogni posizione che volume associare
+;; i valori di posizione in b) ovviamente devono essere compresi entro la dur max del loop: eg se il loop e' 2 beats, non posso avere 5/2. Se valori non vengono dati, assumo che sia zero, a meno che non passo un default value.
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; note that by using volume from beat we don't have to use onbeat anymore!!!!
+
+;; inner function called by the macro below
+(define _volume_from_beat
+   (lambda (beat vols-list amodulo)
+      (if (> amodulo 0)
+          (if (assoc (modulo beat amodulo) vols-list)
+              (cadr (assoc (modulo beat amodulo) vols-list))
+              0)
+          0)))
+
+;;macro
+(define-macro (mu:volumefrombeat vols_list amodulo)
+   `(_volume_from_beat beat ,vols_list ,amodulo))
+
+; example
+(if #f
+    (let ((beat (*metro* 'get-beat))
+          (temp '((0 50) (1/2 80))))
+       (mu:volumefrombeat temp 0))) ;; => 50 at each beat cause it's modulo 0
+
+
+
+
+
+;;; metrotick object for EXTEMPORE
+;;; IN PROGRESS / EVALUATES BUT RUNNING IT FAILS
+;; relies on a metronome instance being previously defined, and on the
+; cl:ratio_is_perfect util
+
+
+(define mu:make-metrotick
+   (lambda (start-metro)
+      (let* ((*loopruns* #f)
+            (*beats* 1)
+            (*vol* 60)
+            (metro start-metro)
+            (musicloop
+               (lambda (beat)
+                  (let* ((mod (modulo beat *beats*)))
+                     ;(print mod)
+                  (if (= 0 mod)
+                        (kit 36 *vol* )
+                        (if (cl:ratio_is_perfect mod)
+                           (begin (kit 36 *vol* ))  ;;(print 'here mod)
+                              ))  ;;(print mod)
+                  (if *loopruns*
+                     (callback (metro (+ beat 1/16)) musicloop (+ beat 1/8)))))))
+         (lambda (sym . args)
+            (cond ((number? sym)
+                  (print (string-append "Metronome: started with " (number->string sym) "/4 (use 'stop to end)"))
+                  (set! *beats* sym)
+                  (when (not *loopruns*)
+                        (set! *loopruns* #t)
+                        (musicloop (metro 'get-beat 1))))
+
+                  ((equal? sym 'stop)
+                  (print "Metronome stopped")
+                  (set! *loopruns* #f))
+
+                  (else 'bad-method-name))))))
+
+
+(if #f 
+   (define *metro* (make-metro 120))
+   (define metroclick (mu:make-metrotick *metro*))
+   (metroclick 4)  ;; start beating a 4/4
+   (metroclick 'stop)
+)
+
+
+
+
+
+;; nice macro: intervals are either specified or inferred!
+;(let ((beat (*metro* 'get-beat)))
+;   (mu:playsequence dls '(60 62) 60 1/2 ))
+
+(when #f ;; IMPROMPTU
+   (define-macro (mu:playsequence inst plist volumes durations . intervals)
+      `(let* ((n (length ,plist))
+            (vols (cl:expand-list2 ,volumes n))
+            (durs (cl:expand-list2 ,durations n))
+            (ints (if (null? (list ,@intervals))
+                        (cl:expand-list2 ,durations n)
+                        (cl:expand-list2 ,@intervals n))))
+
+         (dotimes (i (length ,plist))
+            (play (* (+ i 1) (cl:nth i ints))
+                  ,inst
+                  (cl:nth i ,plist)
+                  (cl:nth i vols)
+                  (cl:nth i durs)))))
+
+   ;; 2) like mu:playsequence, but much more intuitive
+   ;; eg
+   ;(let ((beat (*metro* 'get-beat)))
+   ;   (mu:playseq dls '(60 62 64 65) '(0 1/2 3/2 3) 60 1/2)
+   ;   (mu:playseq bat '(10 10 10 10) '(0 1/2 3/2 3) 60 1/2))
+
+   (define-macro (mu:playseq inst plist times volumes aduration)
+      `(let* ((n (length ,plist))
+            (vols (cl:expand-list2 ,volumes n))
+            (real_times (cl:expand-list2 ,times n)))
+
+         (dotimes (i (length ,plist))
+            (play (cl:nth i real_times)
+                  ,inst
+                  (cl:nth i ,plist)
+                  (cl:nth i vols)
+                  ,aduration))))
+
+   ;; 3) same as above, but the beats do not need to be specified; they are inferred from the durations
+   ;  eg: if we have 3 notes with dur 1, the intervals will be: '(0 1 2)
+
+
+   (define-macro (mu:playseq2 inst plist times volumes aduration)
+      `(let* ((n (length ,plist))
+            (vols (cl:expand-list2 ,volumes n))
+            (real_times (if (list? ,times)
+                              (cl:expand-list2 ,times n)
+                              (let inner ((i 0)  ;; generates sequential intervals based on the duration value
+                                          (out '()))
+                                 (if (= i (length ,plist))
+                                    out
+                                    (inner (+ i 1) (append out (list (* i ,aduration)) )))
+                              ))))
+                  ;(print real_times)
+         (dotimes (i (length ,plist))
+            (play (cl:nth i real_times)
+                  ,inst
+                  (cl:nth i ,plist)
+                  (cl:nth i vols)
+                  ,aduration))))
+)
+
+
+; wrapper for facilitating playing chords
+; you can pass a fixed volume or as many vols as the chord notes are
+;(let ((beat (*metro* 'get-beat)))
+;   (mu:playchord zeb1 (mu:chord 60 '-) '(50 10 60) 4))
+
+(when #f ;; IMPROMPTU
+   (define-macro (mu:playchord inst plist vol len)
+      `(if (list? ,vol)
+         (let ((volumes (cl:expand-list ,vol (- (length ,plist) (length ,vol)))))
+            (for-each (lambda (p v)
+                           (play ,inst p v ,len))
+                        ,plist volumes))
+         (for-each (lambda (p)
+                        (play ,inst p ,vol ,len))
+                     ,plist)))
+)
+
+
+
+
+
+
+
+
+
+
+;2012-04-15: SHORTCUT FOR PLAYING AN AUDIO INSTRUMENT INSTANCE
+; note that 'macro' and 'define-macro' are not the same macro-definition procedures
+; if we use define-macro the functions below won't work
+
+;example:
+;(define t
+;   (lambda (beat)
+;      (mu:with-au dls
+;        (mu:play-au 47 90 1/2))
+;     (callback (*metro* (+ beat (* 1/2 1))) 't (+ beat 1))))
+
+(when #f ;; IMPROMPTU
+   (macro (mu:with-au args)
+      `(let ((thisau ,(cadr args)))
+         ,@(cddr args)))
+)
+
+;; macro that expects an 'inst' variable defined, so that we can omit the instrument when using play
+(when #f ;; IMPROMPTU
+   (macro (mu:play-au args)
+      (cond ((equal? (length (cdr args)) 3)
+            `(let ((note ,(cadr args))
+                  (vol ,(caddr args))
+                  (dur ,(cadddr args))
+                  )
+               ;(print thisau beat note vol dur)
+               (play thisau note vol dur)))
+            ((equal? (length (cdr args)) 4)
+            `(let ((offset ,(cadr args))
+                  (note ,(caddr args))
+                  (vol ,(cadddr args))
+                  (dur ,(cadddr (cdr args))))
+            ;(print thisau beat note vol dur)
+            (play (eval offset) thisau note vol dur)))
+            (#t (print "Error: the function only accepts 3 or 4 argument"))))
+)
+ ;shortcuts
+(when #f ;; IMPROMPTU
+   (define iplay mu:play-au)
+   (define withau mu:with-au)
+)
+
+
+
+
+
+;;; old metrotick object
+
+(when #f ;; IMPROMPTU
+   (define mu:make-metrotick
+      (lambda (start-metro)
+         (let* ((*loopruns* #f)
+               (*beats* 1)
+               (*vol* 60)
+               (metro start-metro)
+               (musicloop
+                  (lambda (beat)
+                     (let* ((mod (modulo beat *beats*)))
+                        ;(print mod)
+                     (if (= 0 mod)
+                           (play dls *gm:hi-bongo*  *vol* 1/8 9)
+                           (if (cl:ratio_is_perfect mod)
+                              (begin (play dls *gm:low-bongo* *vol* 1/8 9))  ;;(print 'here mod)
+                                 ))  ;;(print mod)
+                     (if *loopruns*
+                        (callback (metro (+ beat 1/16)) musicloop (+ beat 1/8)))))))
+            (lambda (sym . args)
+               (cond ((number? sym)
+                     (print (string-append "Metronome: started with " (number->string sym) "/4 (use 'stop to end)"))
+                     (set! *beats* sym)
+                     (when (not *loopruns*)
+                           (set! *loopruns* #t)
+                           (musicloop (metro 'get-beat 1))))
+
+                     ((equal? sym 'stop)
+                     (print "Metronome stopped")
+                     (set! *loopruns* #f))
+
+                     (else 'bad-method-name))))))
+)
+
+
+
+
+
+(when #f ;; impromptu version
+   (define mu:test (lambda (instrument note)
+                                 (play-note (now) instrument (eval note) 80 *second*)))
+
+   ; (mu:testchord dls '(60 70 90))
+   (define mu:testchord
+      (lambda (instrument notes)
+         (for-each (lambda (x)
+                     (play-note (now) instrument x 80 *second* )
+                     )
+                  notes))))
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  colors:
+;;  functions for facilitatin working with colors
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+;; just a bunch of colors variables for a quicker prototypying
+
+
+(define color:black '(0 0 0 1))
+(define color:white '(1 1 1 1))
+(define color:red '(1 0 0 1))
+(define color:green '(0 1 0 1))
+(define color:yellow '(1 1 0 1))
+(define color:blue '(0 0 1 1))
+(define color:brown '(.2 0 0 1))
+
+(define color:random (lambda () (list (random) (random) (random) (random))))
+
+
+
+
+
+
+
+
+
+; =====================
+;
+; Utils for working with beats - UNUSED
+;
+; =====================
+
+
+
+;;;;;;;;;;;;;;; On Beat Andrew's version ;;;;;;;;;;;;;;;;;;;;;
+; 2018-10-07
+; b = the NUMERATOR
+; of = the DENOMINATOR
+; t = the CODE TO RUN IF WE HAVE A MATCH
+; f = the CODE TO RUN IF WE DO NOT HAVE A MATCH (OPTIONAL)
+
+(define-macro (onbeat? b of t . f)
+  (if (null? f)
+      `(if (= (modulo beat ,of) (- ,b 1))
+           ,t)
+      `(if (= (modulo beat ,of) (- ,b 1))
+           ,t ,(car f))))
+
+
+
+ ;;;;;;;;;;; 2018-10-08 REVIEW REVIEW ;;;;;;;;;;;;;;;
+ 
+ ;; UTILS: PL ON BEAT
+ ;; note: the semantic is slighlty different from (onbeat)
+ ;; first goes the numerator then the denominator
+ ;; takes either a single beat (int) or a list to match
+ ;; o = downbeat (numerator)
+ ;; b = total beats (denominator)
+
+
+ ;; EG
+ ;
+ ; (define t1
+ ;    (lambda (beat)
+ ;       (let ((dur 1/16))
+ ;           (plob '(0 3/4 5/4 7/4 10/4) 4
+ ;               c4 90 1 1)
+ ;           (plob 4 1
+ ;               c3 90 1 1)
+ ;      (callback (*metro* (+ beat (* 1/2 dur))) 't1 (+ beat dur)))))
+ ;
+ ;
+ ; (t1 (*metro* 'get-beat 1))
+ ;
+ ;
+
+ (define-macro (plob o b . args)
+    (if (list? o)
+    `(if (member (modulo beat ,b) ,o)
+         (mplay ,@args)
+         #f)
+    `(if (= 0 (modulo (+ ,o beat) ,b))
+         (mplay ,@args)
+         #f)))
+
+
+
+; =====================
+;
+; 1. ATOMIC PREDICATES
+; Note: they accept only atomic values to match, not lists.
+;
+; =====================
+
+
+;;--------
+;
+;  <BEATIS>
+;
+;  Predicate that checks if the current beat matches the measure/downbeat passed.
+;  Note: 0-based
+;
+; (beatis 4 1)   => true every second beat in a four-beats bar
+; (beatis 2 0)   => true every first beat in a two-beats bar
+; To match more than one beat:
+; (or (beatis 2 0) (beatis 2 1))
+;;--------
+
+;;<signature>
+;(define beatis (lambda (measure downbeat) '()))
+;;</signature>
+
+(define-macro (beatis x y)
+   `(equal? (modulo beat ,x) ,y))
+
+
+
+;;--------
+;
+;  <BEAT-GT>
+;
+;;--------
+
+;;<signature>
+;(define beat-gt (lambda (measure downbeat) '()))
+;;</signature>
+
+(define-macro (beat-gt x y)
+   `(> (modulo beat ,x) ,y))
+
+
+
+;;--------
+;
+;  <BEAT-LT>
+;
+;;--------
+
+;;<signature>
+;(define beat-lt (lambda (measure downbeat) '()))
+;;</signature>
+
+(define-macro (beat-lt x y)
+   `(< (modulo beat ,x) ,y))
+
+
+
+;;--------
+;
+;  <BEAT-BTW>
+;
+;(let ((beat (*metro* 'get-beat)))
+;   (barlength 3 (beat-btw 1 4)))
+;
+;;--------
+
+;;<signature>
+;(define beat-btw (lambda (measure downbeat1 downbeat2) '()))
+;;</signature>
+
+(define-macro (beat-btw x y z)
+   `(and (> (modulo beat ,x) ,y) (< (modulo beat ,x) ,z)))
+

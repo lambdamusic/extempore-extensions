@@ -134,6 +134,32 @@
 
 
 
+;;; May 5, 2022 / Alternative PADS mappings for Ableton
+
+(define sample1-1 48) ;13  TOP ROW
+(define sample1-2 49) ;14
+(define sample1-3 50) ;15
+(define sample1-4 51) ;16
+
+(define sample2-1 44) ;9  SECOND DOWN
+(define sample2-2 45) ;10
+(define sample2-3 46) ;11
+(define sample2-4 47) ;12
+
+(define sample3-1 40) ;5 THIRD DOWN
+(define sample3-2 41) ;6
+(define sample3-3 42) ;7
+(define sample3-4 43) ;8
+
+(define sample4-1 36) ;1 BOTTOM ROW
+(define sample4-2 37) ;2
+(define sample4-3 38) ;3
+(define sample4-4 39) ;4
+
+
+
+
+
 
 ;; A few standard position for specific drum parts
 ;;

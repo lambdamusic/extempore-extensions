@@ -11,18 +11,27 @@
 
 
 
+;; negative?
+;;;;;;;;;;;;
+;; https://stackoverflow.com/questions/35169581/determining-if-a-number-is-negative-in-scheme-with-one-function
+(define (negative? x)
+  (define (aux a b)
+    (cond ((zero? a) #f)
+          ((zero? b) #t)
+          (else (aux (- a 1) (+ b 1)))))
+  (aux x x))
 
 
 
-;+
-;
+; helper:inner-do-add
+;;;;;;;;;;;;
 ;; helper: add two numbers or symbols (standing for numbers, eg d5)
 (define helper:inner-do-add
   (lambda (x y)
     (+ (eval x) (eval y))))
 
-;+
-;
+; helper:inner-add
+;;;;;;;;;;;;
 ;; inner fn with cases to support :add
 (define helper:inner-add
   (lambda (l1 l2)
@@ -663,15 +672,52 @@
 
 
 ;
-;; rotate list  [July 26, 2014]
+;; rotate list  
+; [July 26, 2014 / modified April 24, 2022]
+;
+; arg1: a list
+; arg2: opt(def: -1) 1 or -1 to determine rotation direction
+;
+; Example
+; (rotate '(1 2 3)) => (2 3 1)
+; (rotate '(1 2 3) 1) => (3 1 2)
 (define rotate
-  (lambda (lst amt)
-     (let loop ((l (if (> amt 0) (reverse lst) lst))
-	 (cnt (abs amt)))
- (if (<= cnt 0)
-     (if (> amt 0) (reverse l) l)
-     (loop (append (cdr l) (list (car l)))
-	   (- cnt 1))))))
+  (lambda (lst . amt)
+   (if (null? amt)
+      (set! amt -1)
+      (set! amt (car amt)))     
+   (let loop ((l (if (> amt 0) (reverse lst) lst))
+              (cnt (abs amt)))
+   (if (<= cnt 0)
+       (if (> amt 0) (reverse l) l)
+       (loop (append (cdr l) (list (car l)))
+       (- cnt 1))))))
+
+
+
+
+
+
+
+;; rotatedeep
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Rotates a list of lists. The inner lists are also rotated.
+;
+; arg1: a list
+; arg2: opt[default: -1] 1 or -1 to determine rotation direction
+;
+; Example
+; (define l '((a b) (c d) (e f)) )
+; (rotatedeep l) => ((c d) (e f) (a b))
+;
+(define rotatedeep
+  (lambda (lst . amt)
+   (if (null? amt)
+      (set! amt -1)
+      (set! amt (car amt)) 
+      )    
+    (rotate (append (list (rotate (car lst) amt)) (cdr lst)) amt)   
+    ))  
 
 
 
@@ -679,6 +725,9 @@
 
 ;
 ; :mklist
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Example
 ;; (:mklist 4 (oneof 50 60))
 ;; (:mklist 4 (oneof (:mkscale 50 'pentatonic 10)))
 (define-macro (:mklist . args)
@@ -697,14 +746,10 @@
 ; range (like in Python)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;
 ; Example:
 ; --------
 ; (range 1 10) => '(1 2 3 4 5 6 7 8 9 10)
 ; (range 1 10 2) => '(1 3 5 7 9)
-;
-;
-;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define range
   (lambda (min max . step)

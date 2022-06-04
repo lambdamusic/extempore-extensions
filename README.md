@@ -4,7 +4,9 @@ My custom extensions to the [Extempore](https://extemporelang.github.io/) progra
 
 ## Overview
 
-A bunch of scheme abstractions that I developed in order to create Extempore musical algorithms more efficiently and more naturally.  
+A bunch of scheme abstractions that I developed in order to create Extempore musical algorithms more efficiently and more naturally. 
+
+No documentation yet, but various examples of what the extensions look like are available on [The Musical Code](https://github.com/lambdamusic/The-Musical-Code) and its counterpart [YouTube channel](https://www.youtube.com/channel/UCanqSICbxzRNEZGMlu8qfyw).  
 
 Files 
 
@@ -17,10 +19,19 @@ Files
 
 ## How to Use
 
-One can load them at startup like this
+Extempore allows to pass a startup script at runtime, e.g.: 
 
 ```
-./extempore --run LOAD_ALL.xtm
+./extempore --run {YOUR-FILE}.xtm
+```
+
+Hence you can set things up like this in your `bash_profile`: 
+
+```bash
+export EXTEMPORE_RUNTIME="/your/extempore/runtime/installation/"
+export EXTEMPORE_EXTENSIONS="/your/path/to/these/extensions/"
+
+alias xtm-plus="cd $EXTEMPORE_RUNTIME;./extempore --frames 256 --run '$EXTEMPORE_EXTENSIONS'LOAD_ALL.xtm"
 ```
 
 

@@ -1,0 +1,363 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; PLAY MIDI Functions 
+;
+;
+; Overriding the standard extempore `play/mplay` implementation.  
+;
+; The main changes are:
+;
+;; 1) The MIDI OUT instrument is implicit and defaults to the symbol *mididevice*, which needs to be predefined
+;; 2) Channel is 0-based in xtm, but here it is 1-based
+;; 3) The standard 'play' function is always MIDI (overrides Extempore 'play')
+;
+; Note 
+;; It is possible to work with more than one MIDI OUT  instrument
+;; Simply add a (let ((*mididevice* instrument)) statement so to have local scoping of that variable
+;
+;
+;; author: @lambdamusic
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; *PLAY-MIDI-DEFAULT-DUR-FACTOR*
+;;;;;;;
+; Number used to automatically refactor the DUR value 
+; 
+; Passed always to MIDI PLAY functions 
+; E.g. Used to decrease DUR value 
+; so to prevent MIDI ON/OFF conflicts. 
+;
+; @TODO: add reference to docs
+;
+; 1 = no action
+(define *play-midi-default-dur-factor* 0.9)
+
+
+
+
+
+
+
+;
+;
+;; HELPER:PLAYCHORD 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Inner function used by PLAY: midi-play multiple notes at the same time 
+;
+; Args:
+;; 1st: beat
+;; 2nd: offset, atom or list
+;; 3rd: channel, 1-based
+;; 4th: pitch-list
+;; 5th: velocity/vol, atom or list
+;; 6th: dur, atom or list
+;
+;
+; (let ((beat (*metro* 'get-beat))) 
+;   (helper:playchord beat 0 piano 
+;     (list c4 g4) 
+;     (:mklist 2 (random 10 90)) 
+;     (:mklist 2 (oneof 1 2 3)) )
+;   )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define helper:playchord
+  (lambda (beat offset_or_list ch plist vol_or_list dur_or_list)
+    (when #f (monitor  beat offset_or_list ch plist vol_or_list dur_or_list))
+    ;; make lists for vols and durs, if atoms are passed
+    (if (atom? offset_or_list)
+      (set! offset_or_list (list offset_or_list))) 
+    (if (atom? vol_or_list)
+      (set! vol_or_list (list vol_or_list))) 
+    (if (atom? dur_or_list)
+      (set! dur_or_list (list dur_or_list))) 
+    ; volumes & durs: ensure it's the right length
+    (let (
+            (offsets 
+              (cl:expand-list offset_or_list (- (length plist) (length offset_or_list)))) 
+            (volumes (cl:expand-list vol_or_list (- (length plist) (length vol_or_list))))
+            (durs (cl:expand-list dur_or_list (- (length plist) (length dur_or_list)))) 
+          ) 
+          (when #f (monitor  volumes durs))
+          (for-each (lambda (o p v d)
+                      (play-midi-note (*metro* (+ beat o)) *mididevice*
+                                        p
+                                        v
+                                        (*metro* 'dur (* *play-midi-default-dur-factor* d)) 
+                                        ;; NOTE ch is 0based in xtm, but user sends it as 1-based
+                                        (- ch 1)
+                                        ))
+                        offsets plist volumes durs)
+                    ) 
+    ) 
+) 
+
+
+
+
+;    
+;    
+;    
+;; PLAY
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Play a midi note, or a bunch of notes together (a chord).
+;
+; Args:
+; --------
+;; 1st: [OPTIONAL:offset  default = 0]
+;; 2nd: midi channel, 1-based
+;; 3rd: pitch or pitch-list 
+;; 4th: vol or vols-list 
+;; 5th: dur or durs-list 
+;
+; Requires:
+; --------
+; beat 
+; *mididevice*
+;
+;
+; Example:
+; --------
+; (let ((beat (*metro* 'get-beat))) 
+;   (play piano (:mkmelody 2 60 'dorian '(1 -1 2 -2)) 90 2 )
+;   (play piano (list c3 c4) 90 2 )
+;   (play piano c2 90 2 )
+;   ) 
+; Using offsets:
+; (let ((beat (*metro* 'get-beat))) 
+;   (play '(1/2 3/2) piano (:mkmelody 2 60 'dorian '(1 -1 2 -2)) 90 2 )
+;   (play 1/2 piano (list c3 c4) 90 2 )
+;   (play piano c2 90 2 )
+;   ) 
+;
+; WARNING: 
+; --------
+; 1) This function overrides the standard Extempore play function a midi version. To revert back: (sys:load_my_utils "init_midi_legacy.xtm")
+;
+; 2) The offset list needs to be the right length (as plist)
+; Otherwise a "caar <- unzip1-with-cdr-iterative <- map" appears 
+; that I still haven't figured how to prevent..
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (play . args)
+        ;;; CASE1) 4 args: inst, pitch, vol, dur (no offset)
+        (cond	((length-equal? args 4) 
+                `(if (list? ,(cadr args)) 
+                  ;; multi-notes: call helper
+                  (helper:playchord 
+                    beat
+                    0 ;; offset 
+                    ,(car args) ;; ch
+                    ,(cadr args) ;; pitch
+                    ,(caddr args) ;; vol
+                    ,(cadddr args) ;; dur
+                    )       
+                  ;; single-note: send midi message          
+                  (play-midi-note (*metro* beat) 
+                                *mididevice*
+                                (real->integer ,(cadr args)) ;; pitch
+                                (real->integer ,(caddr args)) ;; vol
+                                (*metro* 'dur 
+                                  (* *play-midi-default-dur-factor* ,(cadddr args)) 
+                                ) ;; dur
+                                ;; channel // 0based in xtm, but here it is 1-based
+                                (- (real->integer ,(car args)) 1)
+                                ))      
+                  )      
+        ;;; CASE2) 5 args: OFFSET, inst, pitch, vol, dur                       
+              ((length-equal? args 5) 
+                `(if (list? ,(caddr args)) 
+                  ;; multi-notes: call helper
+                  (helper:playchord
+                    beat
+                    ,(car args) ;; offset
+                    ,(cadr args) ;; ch
+                    ,(caddr args) ;; pitch
+                    ,(cadddr args) ;; vol
+                    ,(caddddr args) ;; dur
+                    )       
+                  ;; single-note: send midi message
+                  (play-midi-note (*metro* (+ beat ,(car args)))         
+                                  *mididevice*
+                                  (real->integer ,(caddr args))
+                                  (real->integer ,(cadddr args))
+                                  (*metro* 'dur 
+                                    (* *play-midi-default-dur-factor* 
+                                      ,(cadr (cdddr args))))   
+                                  (- (real->integer ,(cadr  args)) 1)
+                                ))  
+              ) 
+              (else (print 'Error: 'arguments 'could 'not 'be 'resolved.)) 
+        )))
+
+
+
+
+;
+;
+;; PLAYKIT 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Wrapper around Play, to make it quicker to play drum sounds
+; Defaults: dur = 1/16 , midi CH = 9 
+;
+; Args:
+; --------
+; 1st: [OPTIONAL:offset  default = 0]
+; 2nd: pitch
+; 3rd: velocity/ vol
+;
+; Example:
+; --------
+; (let ((beat (*metro* 'get-beat)))
+;     (playkit k1 90)
+;     )
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (playkit . args)
+                (if (length-equal? args 2) 
+                    ; no offset
+                    `(play-midi-note (*metro* beat) 
+                                    *mididevice*
+                                    (real->integer ,(car args))
+                                    (real->integer ,(cadr args))
+                                    (*metro* 'dur 1/16) ;; dur 1/8
+                                    8) ;; midi always 8 == 9 in LIVE
+                    ; 3 args, = it's an offset
+                    `(play-midi-note (*metro* (+ beat ,(car args)))                
+                                    *mididevice*
+                                    (real->integer ,(cadr args))
+                                    (real->integer ,(car (cddr args)))
+                                    (*metro* 'dur 1/16)
+                                    8)))
+)
+
+
+
+
+;
+;
+;; inner function for :arp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; eg 
+; (helper:arpeggio (*metro* 'get-beat) 0 
+;   '(c4 f4 g4 c5) 3 90 3) ;; durs/vols do not need to be a list
+; (helper:arpeggio (*metro* 'get-beat) 0
+;   '(c4 f4 g4 c5) '(3) '(90) 3) ;; a list works too
+(define helper:arpeggio
+  (lambda (beat offset notes durations volumes ch)
+    (let* ((durs (cl:expand-list2 durations (len notes)))
+          (vols (cl:expand-list2 volumes (len notes)))
+          (total_dur (sum_list durs))
+          (wait (car durs)))
+      (when #f (println notes durs))
+      (play (eval offset) ch (eval (car notes)) (car vols) total_dur )
+      (if (not (null? (cdr notes)))
+        (callback (*metro* (+ beat (* 1/2 wait))) 
+          'helper:arpeggio (+ beat wait) offset
+          (rest notes) (rest durs) (rest vols) ch))))) 
+
+
+
+;
+;
+; PLAYARP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Play notes in sequence by adding them on top of each other, 
+; like an arpeggio, till the last note has played.
+; The total time is given by the sum of all durations.
+;
+;
+; Args:
+; ----
+;; 1st: [OPTIONAL:offset  default = 0]
+;; 2nd: midi channel, 1-based
+;; 3rd: pitch-list 
+;; 4th: vol or vols-list 
+;; 5th: dur or durs-list 
+; 
+; durst & vols: if an atom is passed, it's 'expanded' into a list (= same for all notes)
+; (durs => the dur of each note, before the following one kicks in)
+; 
+; 
+; Requires:
+; --------
+; beat 
+; *mididevice*
+;
+; 
+; Example:
+; --------
+; (define piano 1) ;; midi ch
+; (let ((beat (*metro* 'get-beat)))
+;   (playarp piano '(60 67) 90 4) 
+;   (playarp 2 piano '(60 67) 90 4)  ;; 2 = offset
+;   (playarp piano (:mkchord c4 '^ 4) (list 90 50) (:mklist 4 (oneof 1 2 3)))
+; )
+;
+; Dependencies:
+; -------------------------------
+; * helper:arpeggio
+; * play (midi version)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
+(impc:aot:do-or-emit
+  (define-macro (playarp . args)
+    ; (println (car args) (len args))
+    (cond ((length-equal? args 4)
+        ;; 4 args: ch // plist // vols  // durs 
+        ;; ==> memo: helper:arpeggio takes: beat offset notes durations volumes ch
+          `(begin 
+              (when #f (println 'arp: ,@args)) 
+              (if (atom? ,(cadr args)) 
+                (log-error 'arp: 'expects 'a 'list 'of 'notes.)
+                (helper:arpeggio beat 0 ,(cadr args) ,(cadddr args) ,(caddr args)  ,(car args) )))
+                )
+              
+           ((length-equal? args 5)
+        ;; 5 args: offset // ch // plist // vols  // durs 
+            `(begin 
+              (when #f (println 'arp: ,@args))
+              (if (atom? ,(caddr args)) 
+                (log-error 'arp: 'expects 'a 'list 'of 'notes.)
+                (helper:arpeggio beat ,(car args) ,(caddr args)  ,(caddddr args) ,(cadddr args) ,(cadr args) )))
+                )
+        
+          (else (log-error 'arp: 'arguments 'could 'not 'be 'resolved.))))) 
+
+
+
+
+;
+;
+; ROLL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Legacy implentation of simple drum progressions. 
+;; Dependency: 'kit' function
+;
+;
+; Example
+; (let ((beat (*metro* 'get-beat)))
+;    (playkitr k1 6 1/2))
+;
+; TODO 
+; Allow passing MIDI ch (now relies on `kit` hence default is ch-9 )
+; Provide more options and integrate with playkit
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-macro (playkitr pitch hits spacing)
+  `(let loop ((i 0))
+      (play (* i ,spacing) 9 ,pitch (+ 60 (expt 2 i)) 1/16)
+      (if (< i (- ,hits 1)) (loop (+ i 1)))))
+(define-macro (playkitrdown pitch)
+   `(let loop ((i 0))
+         (play (* i 1/10) 9 ,pitch (- 110 (expt 4 i)) 1/16)
+         (if (< i 3) (loop (+ i 1)))))
+(define-macro (playkitrrollup pitch)
+   `(let loop ((i 0))
+         (play (* i 1/10) 9 ,pitch (+ 50 (expt 4 i)) 1/16)
+         (if (< i 3) (loop (+ i 1)))))
+
+

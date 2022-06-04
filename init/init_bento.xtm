@@ -1,0 +1,74 @@
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; REMINDER: Bento values can go from 0 to 127
+;; 
+;; BENTO has two generator sections / blue & red
+;; https://www.giorgiosancristoforo.net/downloads/Bento_User_Manual.pdf 
+;; 
+;; Most controls have been mapped via the Bento UI. 
+;; Load the mappings in order to reuse them in Extempore.
+;; Note: controls start with 'z' for quicker keyboard auto completion
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;; BENTO BLUE SECTION // BOTTOM SIDE OF SYNTH
+
+;; generator
+(define zblue-gen-clock* 70) 
+(define zblue-gen-noise* 71) ; the red generator in the blue section / modulates clock amp 
+(define zblue-gen-osc* 72) 
+(define zblue-gen-insta1* 73) 
+(define zblue-gen-insta2* 74) 
+(define zblue-gen-volume* 75) 
+
+;; filter
+(define zblue-fil-cutoff* 76) 
+(define zblue-fil-resonance* 77) 
+(define zblue-fil-feedback* 78) 
+(define zblue-fil-saturation* 79) ;;;
+(define zblue-fil-distorsion* 80) 
+(define zblue-fil-cutoff-mod* 81) 
+;; skipped a control here: amplitude of random values control
+(define zblue-fil-balance* 82) 
+
+;; amplifier
+(define zblue-amp-clock* 83) 
+(define zblue-amp-attack* 84) 
+(define zblue-amp-release* 85) 
+(define zblue-amp-ring* 86) 
+(define zblue-amp-volume* 87) 
+
+
+
+;;
+;; BENTO RED SECTION // TOP SIDE OF SYNTH 
+;;
+
+
+;; generator
+(define zred-gen-clock* 88) 
+(define zred-gen-noise* 89) 
+(define zred-gen-osc* 90) 
+(define zred-gen-insta1* 91) 
+(define zred-gen-insta2* 92) 
+(define zred-gen-volume* 93) 
+
+;; filter
+(define zred-fil-cutoff* 94) 
+(define zred-fil-resonance* 95) 
+(define zred-fil-feedback* 96) 
+(define zred-fil-saturation* 97) ;;;
+(define zred-fil-distorsion* 98) 
+(define zred-fil-cutoff-mod* 99) 
+;; skipped a control here: amplitude of random values control
+(define zred-fil-balance* 100) 
+
+
+;; amplifier 
+; note: red has no ring modulator
+(define zred-amp-clock* 101) 
+(define zred-amp-attack* 102) 
+(define zred-amp-release* 103) 
+(define zred-amp-volume* 104) 
+

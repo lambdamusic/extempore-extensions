@@ -1,0 +1,109 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; COMPATIBILITY MODE / ALIASES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(define kit playkit)
+
+(define steps :steps)
+
+(define offset :add)
+
+
+(define at-btw atbtw)
+
+(define add :add)
+
+(define repeat rep)
+(define R rep)
+
+(define sl slice)
+
+
+(define ifchance if-random)
+
+(define :ifchance if-random)
+
+
+
+(define chance if-random) ; 2021-03-07
+
+(define :chance if-random)
+
+(define mklist :mklist)
+
+
+
+(define mcc :mcc)
+
+
+
+(define  mkchord :mkchord)
+(define mkchordrandom :mkchordrandom )
+(define mkrelscale :mkrelscale )
+(define  mkscale :mkscale)
+(define mkrel :mkrel )
+
+
+;; old name for legacy compatibility
+(impc:aot:do-or-emit
+    (define-macro (seq . args)
+                `(helper:mmplayp_f_with_offset beat dur *mididevice* ,@args))
+)
+
+
+
+
+
+
+
+;
+;
+; :ARP OLD IMPLEMENTATION  / USE playarp instead!
+; Deprecated on 2022-06-03
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Args:
+; ----
+; offset (opt)
+; midi-channel 
+; notes
+; durs 
+; vols 
+
+; 
+; Requires:
+; --------
+; beat 
+; *mididevice*
+;
+; 
+; Example:
+; --------
+; (define piano 1) ;; midi ch
+; (let ((beat (*metro* 'get-beat)))
+;   (arp piano '(60 67) 4 90) 
+;   (arp 2 piano '(60 67) 4 90)  ;; 2 = offset
+;   (arp piano (:mkchord c4 '^ 4) (:mklist 4 (oneof 1 2 3)) 90)
+; )
+;
+;
+; Dependencies:
+; -------------------------------
+; * helper:arpeggio
+; * play (midi version)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
+(impc:aot:do-or-emit
+  (define-macro (:arp . args)
+    ; (println (car args) (len args))
+    (cond ((length-equal? args 4)
+        ;; 4 args: ch // plist // tlist // vols
+        ;; ==> memo: helper:arpeggio takes: beat offset notes durations volumes ch
+          `(begin (println ,@args) (helper:arpeggio beat 0 ,(cadr args) ,(caddr args) ,(cadddr args) ,(car args) )))
+           ((length-equal? args 5)
+        ;; 5 args: offset // ch // plist // tlist // vols
+          `(helper:arpeggio beat ,(car args) ,(caddr args) ,(cadddr args) ,(caddddr args) ,(cadr args) )) 
+          (else (log-error 'arp: 'arguments 'could 'not 'be 'resolved.))))) 
+
+
+(define arp :arp)

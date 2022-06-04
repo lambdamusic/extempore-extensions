@@ -159,8 +159,6 @@
 
 
 
-
-
 ;
 ;
 ;; IFBEAT X Y
@@ -263,5 +261,31 @@
    `(if (= (modulo LC ,(car args)) 0)
         ,(cadr args)
         ,(caddr args)))
+
+
+
+
+
+
+
+;
+;
+;; MONITOR values 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; shortcut for printing out variables while in loops , using beat // default on 1/4
+;
+;; Example
+;
+; (let ((beat (*metro* 'get-beat))
+;         (v1 2) (v2 4)) 
+;     (monitor v1 v2))
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-macro (monitor . args)
+    (if (number? (car args))
+        `(onbeat ,(car args) 0 (println ,@(cdr args)))
+        `(onbeat 1/4 0 (println ,@args))
+    ))
+
 
 
