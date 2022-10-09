@@ -16,7 +16,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;  MIDI CONTROL CHANGE
 ; default channel is 0 / ensure there is no conflict with Ableton mixer function that are 
-; on a different channel *ableton-default-cc-channel*
+; on a different channel *ableton-mixer-midi-channel*
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  
 (define *mcc-verbose* #f)
@@ -43,7 +43,7 @@
 
 
 ;
-;; :MCC
+;; :MIDICC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; midi control change shortcut
 ;; Uses default *mididevice* symbol 
@@ -57,7 +57,7 @@
 ;
 ;; Example:
 ; --------
-; (mcc 49 127) 
+; (:midicc 49 127) 
 ; 
 ;
 ;; TIP: In order to set up mappings in Live:
@@ -65,7 +65,7 @@
  ; 2 - send :mcc signal to store mapping
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (impc:aot:do-or-emit
-    (define-macro (:mcc . args)
+    (define-macro (:midicc . args)
                 (if (length-equal? args 2) 
                     ; arg1:cc arg2:value / channel default=0  ==> good for Ableton LIVE
                     `(send-midi-cc (now) ;;(*metro* beat) 
