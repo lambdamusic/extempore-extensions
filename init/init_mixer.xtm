@@ -1,7 +1,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;; MIDI Functions for controlling volumes in Ableton LIVE
+;; MIDI Functions for controlling Ableton LIVE mixer
+;;
+
+;; PREREQUISITES: custom control surface settings in
+;;;; ~/Library/Preferences/Ableton/Live X.X.X/User Remote Scripts/Extempore/UserConfiguration.txt under [Globals]
 ;;
 ;; See also
 ;; - https://forum.ableton.com/viewtopic.php?t=140489
@@ -9,7 +13,8 @@
 ;; - https://help.ableton.com/hc/en-us/articles/360010389480-Using-MIDI-CC-in-Live
 ;; - https://groups.google.com/g/extemporelang/c/9cQqmflEdpY/m/vej0rEw-AQAJ
 ;
-;; MY ABLETON LIVE MAPPINGS
+;
+;;;;;;; CUSTOM ABLETON LIVE MAPPINGS:
 ;
 ; VolumeSlider1: 1
 ; VolumeSlider2: 2
@@ -45,13 +50,12 @@
 
 
 ;;
-;; The primary MIDI channel that the Ableton controller uses
-;; NOTE this is defined in ~/Library/Preferences/Ableton/Live X.X.X/User Remote Scripts/Extempore/UserConfiguration.txt under [Globals]
-;; It is the channel used for default mappings of volumes etc..
+;; The primary MIDI channel that the Ableton custom controller uses
+;; PS So :mixer functions are equivalent of (:mcc CC VAL 9)
+;; Channel should match what's defined in: 
+; ~/Library/Preferences/Ableton/Live X.X.X/User Remote Scripts/Extempore/UserConfiguration.txt under [Globals]
 ;;
-;; PS So the functions below are the equivalent for (:mcc CC VAL 9)
-;;
-(define *ableton-default-cc-channel* 9)
+(define *ableton-mixer-midi-channel* 9)
 
 
 
@@ -103,7 +107,7 @@
 ; helper:print-mixer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; helper 
-;; pretty print Ableton LIVE mixer val
+;; pretty print Ableton LIVE mixer channel val
 ; <status>: 'changed' => stronger color  
 ; <status>: default => regular print  
 (define helper:print-mixer
@@ -119,7 +123,7 @@
 ;
 ; helper:print-mixers-all
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; pretty print Ableton LIVE  all mixers
+; pretty print Ableton LIVE all mixers
 (define helper:print-mixers-all
     (lambda ()
     (println '---*Mixers 'cache*---)
@@ -128,6 +132,27 @@
         *mixers*)
     (println )
         ))   
+
+
+;
+; helper:set-mixer-all
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; UTIL: set all 9 mixers to the same val
+;; never called directly, but via `:mix 'all 90`
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define helper:set-mixer-all
+    (lambda (val)
+        (println '---*Mixers 'Reset*---)
+        (:mix 1 val ) 
+        (:mix 2 val )
+        (:mix 3 val )
+        (:mix 4 val )
+        (:mix 5 val )
+        (:mix 6 val )
+        (:mix 7 val )
+        (:mix 8 val )
+        (:mix 9 val )
+        ))
 
 
 
@@ -147,12 +172,13 @@
                 (newval 0)) 
                 ;
                 (if *debug*
-                    (log-info ch increment min-limit max-limit oldval)
+                    (log-info 'received: ch increment min-limit max-limit oldval)
                     )
                 ;
                 (if (not (integer? min-limit)) 
-                    ;; trick to show specific channel: 'none is passed by macro 
-                    (helper:print-mixer ch oldval 'show) 
+                    (begin 
+                        (println 'min-limit 'should 'be 'an 'integer)
+                        (helper:print-mixer ch oldval 'show) )
                     (if (and (negative? increment) 
                              (>= min-limit oldval))
                         ;; when decreasing, min-limit can't be higher than old value
@@ -182,7 +208,7 @@
                                     (send-midi-cc (now) *mididevice* 
                                         (real->integer ch) 
                                         (real->integer newval) 
-                                        *ableton-default-cc-channel*)
+                                        *ableton-mixer-midi-channel*)
                                     (helper:print-mixer ch newval 'changed)
                                 ))
                             )
@@ -202,7 +228,7 @@
 ; -----
 ; ch: the CC channel (1-10 for volumes)
 ; action: +/- for increment/decrement 
-; value: the fader value number (0 to 127)
+; value: [INTEGER 0-127] the fader value number
 ; boundary: the min or max value where to stop
 ;
 ; Notes:
@@ -216,14 +242,15 @@
 ;
 ; Example:
 ; --------
-;; (:mix) or (:mix 'all)  -- show all active values
+;; (:mix)            -- show all active values
+;; (:mix 'all)       -- show all active values (alias)
 ;; (:mix 1)          -- [1 arg]: show current cached value for channel 1 
 ;; (:mix 1 10)       -- [2 args]: set channel 1 to 10 (up to DEFAULT MAX)
 ;; (:mix 'all 10)    -- [2 args]: set all channels to 10 
-;; (:mix 1 '+ 1)       -- [3 args]: increment channel 1 by 1 (up to DEFAULT MAX)
-;; (:mix 1 '- 1)       -- [3 args]: decrement channel 1 by -1 (up to DEFAULT MIN)
-;; (:mix 1 '+ 1 50)    -- [4 args]: increment channel 1 by 1, up to 50
-;; (:mix 1 '- 1 10)    -- [4 args]: decrement channel 1 by -1, up to 10 
+;; (:mix 1 '+ 1)     -- [3 args]: increment channel 1 by 1 (up to DEFAULT MAX)
+;; (:mix 1 '- 1)     -- [3 args]: decrement channel 1 by -1 (up to DEFAULT MIN)
+;; (:mix 1 '+ 1 50)  -- [4 args]: increment channel 1 by 1, up to 50
+;; (:mix 1 '- 1 10)  -- [4 args]: decrement channel 1 by -1, up to 10 
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (impc:aot:do-or-emit
@@ -235,10 +262,10 @@
                 ;; eg (:mix 5) ;; Show VAL for specific channel
             `(helper:inner_mixer ,(car args) 0 'none 'none)) 
             ((length-equal? args 2) 
+                ;; eg (:mix 'all 40) => set all to '40'
                 ;; eg (:mix 5 10) => set to '10' (min/max=default)
-                ;;; eg (:mix 'all 40) => set all to '40'
               `(if (equal? ,(car args) 'all) 
-                (helper:mixer-all ,(cadr args)) 
+                (helper:set-mixer-all ,(cadr args)) 
                 (helper:inner_mixer ,(car args) ,(cadr args) ,(cadr args) ,(cadr args)))) 
             ((length-equal? args 3)  
                 ;; eg (:mix 5 '+ 1) => increment by '1' (min/max=default)
@@ -259,29 +286,6 @@
 
 
 
-
-
-
-
-;
-; helper:mixer-all
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; UTIL: set all 9 mixers to the same val
-;; never called directly, but via `:mix 'all 90`
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define helper:mixer-all
-    (lambda (val)
-        (println '---*Mixers 'Reset*---)
-        (:mix 1 val ) 
-        (:mix 2 val )
-        (:mix 3 val )
-        (:mix 4 val )
-        (:mix 5 val )
-        (:mix 6 val )
-        (:mix 7 val )
-        (:mix 8 val )
-        (:mix 9 val )
-        ))
 
 
 
