@@ -34,7 +34,7 @@
 (define mklist :mklist)
 
 
-
+(define :mcc :midicc)
 (define mcc :mcc)
 
 
