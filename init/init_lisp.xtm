@@ -11,15 +11,26 @@
 
 
 
+;; https://stackoverflow.com/questions/35169581/determining-if-a-number-is-negative-in-scheme-with-one-function
+; DISABLED 2022-10-09 => breaks with floating values
+; (define (negative? x)
+;   (define (aux a b)
+;     (cond ((zero? a) #f)
+;           ((zero? b) #t)
+;           (else (aux (- a 1) (+ b 1)))))
+;   (aux x x))
+
+
+
 ;; negative?
 ;;;;;;;;;;;;
-;; https://stackoverflow.com/questions/35169581/determining-if-a-number-is-negative-in-scheme-with-one-function
-(define (negative? x)
-  (define (aux a b)
-    (cond ((zero? a) #f)
-          ((zero? b) #t)
-          (else (aux (- a 1) (+ b 1)))))
-  (aux x x))
+(define negative?
+  (lambda (x)
+    (if (< x 0)
+        #t
+        #f)
+    ))
+
 
 
 
