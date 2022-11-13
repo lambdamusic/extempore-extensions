@@ -276,7 +276,7 @@
 ;; Pitch English notation
 ;; https://en.wikipedia.org/wiki/Scientific_pitch_notation
 ;;
-;; 2021-01-04 => using defaults in /extempore/libs/core/pc_ivl.xtm
+;; 2021-01-04 => using defaults from https://github.com/digego/extempore/blob/v0.8.9/libs/core/pc_ivl.xtm
 ;; IE
 ;;  c0 = 12
 ;;  c1 = 24

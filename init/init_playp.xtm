@@ -1,0 +1,279 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 'playp'  =>  PlayPattern function - like a step sequencer.
+; Adapted from original implementation in Extempore: https://github.com/digego/extempore/tree/v0.8.9/libs/external/portmidi.xtm
+;
+; Main changes:
+; - defaults to MIDI play (mplay)
+; - channel is 1-based
+; - pitch duration can be omitted as it's inferred from loop duration
+; - function signature slightly altered 
+;
+;
+;; author: @lambdamusic
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+;
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; original mplay from Andrew's implementation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (mplay . args)
+                (if (length-equal? args 5)
+                    `(play-midi-note (*metro* beat)
+                                    ,(cl:nth 0 args)
+                                    (real->integer ,(cl:nth 1 args))
+                                    (real->integer ,(cl:nth 2 args))
+                                    (*metro* 'dur ,(cl:nth 3 args))
+                                    (real->integer ,(cl:nth 4 args)))
+                    `(play-midi-note (*metro* (+ beat ,(cl:nth 0 args)))
+                                    ,(cl:nth 1 args)
+                                    (real->integer ,(cl:nth 2 args))
+                                    (real->integer ,(cl:nth 3 args))
+                                    (*metro* 'dur ,(cl:nth 4 args))
+                                    (real->integer , (cl:nth 5 args)))))
+    )
+
+
+
+;
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; helper:mplayp_play_list_v2
+;
+; helper used by :steps playpattern function
+; modified from the original from Andrew's implementation
+; but the channel is taken as 1-based (hence -1 from what is passed)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define helper:mplayp_play_list_v2
+  (let ((lst_idx (range 0 1000)))
+    (lambda (beat dur pclas inst vols durs channel lst mod_diff step offset poffset args)
+      (let ((duration 0) (volume 0)
+            (phase 0))
+        (for-each (lambda (x idx t)
+                    (if (symbol? x) (set! x (eval x)))
+                    (if (list? durs)
+                        (if (and (symbol? (car durs))
+                                 (defined? (car durs))
+                                 (or (closure? (eval (car durs)))
+                                     (procedure? (eval (car durs)))
+                                     (macro? (eval (car durs)))))
+                            (set! duration durs)
+                            (if (= (length durs) (length lst))
+                                (set! duration (list-ref durs idx))
+                                (set! duration step)))
+                        (set! duration durs))
+                    (if (list? vols)
+                        (if (and (symbol? (car vols))
+                                 (defined? (car vols))
+                                 (or (closure? (eval (car vols)))
+                                     (procedure? (eval (car vols)))
+                                     (macro? (eval (car vols)))))
+                            (set! volume vols)
+                            (if (= (length vols) (length lst))
+                                (set! volume (list-ref vols idx))
+                                (set! volume 80)))
+                        (set! volume vols))
+                    (if (list? x)
+                        (helper:mplayp_play_list_v2 beat dur pclas inst volume
+                                          duration channel x mod_diff (/ step (length lst)) (+ t offset) poffset args)
+                        (if (> x 0)
+                            (begin 
+                              (set! phase (+ mod_diff t offset))
+                              (eval
+                                    `(mplay ,phase ;(+ mod_diff t offset)
+                                            ,inst
+                                            ,(pc:quantize (+ x poffset) pclas)
+                                            ,volume
+                                            ,duration
+                                            ,(- channel 1) ;; NEW
+                                            ,@args))))))
+                  lst
+                  lst_idx
+                  (range 0 step (/ step (length lst))))))))
+
+
+
+;
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; helper:mmplayp_f_with_offset
+;
+; helper used by :steps playpattern function
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define helper:mmplayp_f_with_offset
+  (lambda (beat dur midiout . args)
+    (let ((pclas '(0 1 2 3 4 5 6 7 8 9 10 11))
+          (offset 0)
+          (poffset 0)
+          (inst '())
+          (data '())
+          (vols '())
+          (durs '())
+          (channel 0)
+          (datal 0)
+          (cycle 0)
+          (step 0))
+      ;; channel
+      (set! channel (car args))
+      (set! args (cdr args))      
+      ;; first always cycle-var    
+      (set! cycle (car args))
+      (if (not (number? cycle))
+          (println "Error: cycle value must be a number"))
+      (set! args (cdr args))
+      ;; now offset/poffset or notes
+      (if (list? (car args))
+          (set! data (car args)) ;;  pitch list
+          (begin
+            (set! offset (car args)) ;;  offset
+            (set! args (cdr args))
+            (if (list? (car args))
+                (set! data (car args)) ;;  pitch list
+                (begin
+                    (set! poffset (car args)) ;;  poffset
+                    (set! args (cdr args))
+                    (set! data (car args)))))) ;;  pitch list
+      (set! inst midiout) ;; instrument (hardwired)
+      (set! args (cdr args))
+      (set! datal (length data))
+      (set! vols (car args))
+      (set! args (cdr args))
+      ; allow dur to be inferred if empty
+      (if (> (length args) 0)
+        (begin 
+            (if *debug* (log-info 'found-dur (car args)))
+            (set! durs (car args))
+            (set! args (cdr args)))
+        (begin 
+            (if *debug* (log-info 'inferring-dur (* (/ cycle datal) 0.9)))
+            (set! durs (* (/ cycle datal) 0.9)))
+      )  
+    ;   (set! channel (car args)) ;; 2022-10-09 removed
+    ;   (set! args (cdr args))
+      (set! step (/ cycle datal))
+      (let ((local_beat (modulo beat cycle))
+            (mod_diff 0)
+            (volume vols)
+            (phase 0.0)
+            (duration durs)
+            (pitch 0))
+        (dotimes (i (* 2 datal))
+                 (set! mod_diff (- (* i step) local_beat))
+                 (set! pitch (list-ref data (modulo i datal)))
+                 (if (symbol? pitch) (set! pitch (eval pitch)))
+                 (if (list? durs)
+                     (if (and (symbol? (car durs))
+                              (defined? (car durs))
+                              (or (closure? (eval (car durs)))
+                                  (procedure? (eval (car durs)))
+                                  (macro? (eval (car durs)))))
+                         (set! duration durs)
+                         (if (= (length durs) datal)
+                             (set! duration (list-ref durs (modulo i datal)))
+                             (set! duration step))))
+                 (if (list? vols)
+                     (if (and (symbol? (car vols))
+                              (defined? (car vols))
+                              (or (closure? (eval (car vols)))
+                                  (procedure? (eval (car vols)))
+                                  (macro? (eval (car vols)))))
+                         (set! volume vols)
+                         (if (= (length vols) datal)
+                             (set! volume (list-ref vols (modulo i datal)))
+                             (set! volume 80))))
+                 (if (list? pitch)
+                     (begin
+                       (if (and (>= mod_diff 0)
+                                (< mod_diff dur)
+                                (not (null? pitch)))
+                           (helper:mplayp_play_list_v2 beat dur pclas inst volume duration channel pitch mod_diff step offset poffset args)))
+                     (begin
+                       (set! phase (+ mod_diff offset))
+                       (if (and (>= mod_diff 0)
+                                (< mod_diff dur)
+                                (> pitch 0))
+                           (eval `(mplay ,phase ;(+ mod_diff offset)
+                                         ,inst
+                                         ,(pc:quantize (+ pitch poffset) pclas)
+                                         ,volume
+                                         ,duration
+                                    ;   ,channel
+                                        ;; NOTE ch is 0based in xtm, but user sends it as 1-based
+                                        ,(- channel 1)
+                                         ,@args))
+                           (begin #f)))))))))
+
+
+
+
+;
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PLAYP - PlayPattern function - like a step sequencer
+;
+; Prerequisites:
+; - `beat` and `dur` symbols bound in outer function
+; - symbol `*mididevice*` MAPPED TO AN OUTPUT STREAM
+;
+; Signature:
+; playp N:ch N:bars [opt:N:durOffset] [opt:N:pOffset] ():pattern ():vols [opt:N:dur] 
+;
+; Args:
+; - channel (1-based)
+; - cycle-dur 
+; - offset [default = 0]
+; - poffset [default = 0]
+; - plist
+; - vol
+; - dur [default =  cycle / len(plist) * 0.9]
+;
+; Adapted from original implementation in Extempore: https://github.com/digego/extempore/tree/v0.8.9/libs/external/portmidi.xtm
+;
+; Main changes:
+; - defaults to MIDI play (mplay)
+; - channel is 1-based
+; - pitch duration can be omitted as it's inferred from loop duration
+; - function signature slightly altered 
+; 
+; Notes:
+; - Contrary to the original mplayp implementation, CYCLE argument is always required, ie it does not get inferred from dur 
+; - The first arg must always be cycle-dur, then notes-list, etc... (in original implementation, mididevide/closure was used as a delimiter)
+; - Due to args order, a poffset can be passed only after an offset, so set offset to 0 if all you need is a poffset
+;
+;
+; Example:
+; (define *mididevice* (pm_create_output_stream 1))
+; (define piano 1) ; =midi channel
+; (define playp-test
+;     (lambda (beat)
+;         (let ((dur 1/16))
+;         (playp piano 4 '(60 72) 60)
+;         (playp piano 2 1/4 (oneof 5 7) (list 60 72) 60)  ;; random poffset changes the pitch
+;             (callback (*metro* (+ beat (* 1/2 dur))) 
+;                 'gg (+ beat dur)))))
+
+; (playp-test (*metro* 'get-beat 1))
+;
+; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (playp . args)
+                `(helper:mmplayp_f_with_offset beat dur *mididevice* ,@args))
+)
+
+
+
+
+
+
+
+
+
+

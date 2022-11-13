@@ -6,6 +6,13 @@
 
 (define kit playkit)
 
+
+(impc:aot:do-or-emit
+    (define-macro (:steps . args)
+       (println 'WARNING "Function steps deprecated. Use playp.")
+    )
+)
+
 (define steps :steps)
 
 (define offset :add)
