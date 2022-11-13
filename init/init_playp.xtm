@@ -258,7 +258,7 @@
 ;         (playp piano 2 1/4 (oneof 5 7) (list 60 72) 60)  ;; random poffset changes the pitch
 ;             (callback (*metro* (+ beat (* 1/2 dur))) 
 ;                 'gg (+ beat dur)))))
-
+;
 ; (playp-test (*metro* 'get-beat 1))
 ;
 ; 
