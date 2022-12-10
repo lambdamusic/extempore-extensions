@@ -13,6 +13,11 @@
     )
 )
 
+
+(define :steps 
+  (lambda ()
+    (log-info "ERROR: update steps with playp!")
+))
 (define steps :steps)
 
 (define offset :add)
