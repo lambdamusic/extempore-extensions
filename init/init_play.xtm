@@ -25,10 +25,8 @@
 ; *PLAY-MIDI-DEFAULT-DUR-FACTOR*
 ;;;;;;;
 ; Number used to automatically refactor the DUR value 
-; 
 ; Passed always to MIDI PLAY functions 
-; E.g. Used to decrease DUR value 
-; so to prevent MIDI ON/OFF conflicts. 
+; E.g. Used to decrease DUR value so to prevent MIDI ON/OFF conflicts. 
 ;
 ; @TODO: add reference to docs
 ;
@@ -83,8 +81,8 @@
           (when #f (monitor  volumes durs))
           (for-each (lambda (o p v d)
                       (play-midi-note (*metro* (+ beat o)) *mididevice*
-                                        p
-                                        v
+                                        (real->integer p)
+                                        (real->integer v)
                                         (*metro* 'dur (* *play-midi-default-dur-factor* d)) 
                                         ;; NOTE ch is 0based in xtm, but user sends it as 1-based
                                         (- ch 1)
@@ -108,8 +106,8 @@
 ; --------
 ;; 1st: [OPTIONAL:offset  default = 0]
 ;; 2nd: midi channel, 1-based
-;; 3rd: pitch or pitch-list 
-;; 4th: vol or vols-list 
+;; 3rd: pitch or pitch-list (floats -> int)
+;; 4th: vol or vols-list (floats -> int)
 ;; 5th: dur or durs-list 
 ;
 ; Requires:
