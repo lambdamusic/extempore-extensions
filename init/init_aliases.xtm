@@ -4,6 +4,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(define ran random)
+
+
+;; legacy implementation mappings
+(define pc:quant :pcquan)
+(define pc:ran :pcran)
+
+
 (define kit playkit)
 
 

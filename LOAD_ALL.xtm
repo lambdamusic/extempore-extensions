@@ -84,9 +84,6 @@
 (sys:load_extension "init_tempo.xtm")
 (sys:load_extension "init_aliases.xtm")
 
-;; To revert to legacy MIDI lib: 
-;; (sys:load_extension "init_midi_legacy.xtm")
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
