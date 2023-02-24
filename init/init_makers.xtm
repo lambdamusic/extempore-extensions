@@ -453,46 +453,18 @@
 
 
 
-
 ;
 ;
-; :pcquan
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrapper around pc:quantize
-;;
-;; Allows passing a scale symbol, or any list of pitches 
-;; (original only allows a 0-11 pitch class list) 
-;; Then quantizes a given note to it
-;;
-;; Returns always the closest value
-;;  (pcq 60 'M) => 60
-;;  (pcq 60 (list 1 11)) => 61
-;;  (pcq 60 (list 63 59)) => 59
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :pcquan
-    (lambda (pitch-in pitch-list-or-sym)
-      (let ((scale pitch-list-or-sym))
-        (if	(atom? scale)
-            (set! scale (:mkscale 60 pitch-list-or-sym)))
-        (pc:quantize pitch-in 
-            (map (lambda (x)
-                    (modulo x 12))
-                scale)      
-            ))))
-
-
-
-;
-;
-; :pcran
+; :mkrandom
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; wrapper around pc:random 
 ;;
-;; Allows passing a scale symbol, or any list of pitches
+;; Allows passing a scale symbol, or any list of pitches.
+;; With symbol, it defauls to C as root.
 ;; (original only allows a 0-11 pitch class list) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :pcran
+(define :mkrandom
     (lambda (lower upper pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
@@ -503,6 +475,35 @@
                 scale)
             ))))
 
+
+
+
+
+;
+;
+; :mkquantize
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; wrapper around pc:quantize
+;;
+;; Allows passing a scale symbol, or any list of pitches.
+;; With symbol, it defauls to C as root. 
+;; (original only allows a 0-11 pitch class list) 
+;;
+;; Returns always the closest value
+;;  (:mkquantize 60 'M) => 60
+;;  (:mkquantize 60 (list 1 11)) => 61
+;;  (:mkquantize 60 (list 63 59)) => 59
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define :mkquantize
+    (lambda (pitch-in pitch-list-or-sym)
+      (let ((scale pitch-list-or-sym))
+        (if	(atom? scale)
+            (set! scale (:mkscale 60 pitch-list-or-sym)))
+        (pc:quantize pitch-in 
+            (map (lambda (x)
+                    (modulo x 12))
+                scale)      
+            ))))
 
 
 
