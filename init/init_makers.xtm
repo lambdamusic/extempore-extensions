@@ -455,7 +455,7 @@
 
 ;
 ;
-; :mkrandom
+; :mkrandomp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; wrapper around pc:random 
@@ -464,7 +464,7 @@
 ;; With symbol, it defauls to C as root.
 ;; (original only allows a 0-11 pitch class list) 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkrandom
+(define :mkrandomp
     (lambda (lower upper pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
