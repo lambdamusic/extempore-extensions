@@ -8,8 +8,8 @@
 
 
 ;; legacy implementation mappings
-(define pc:quant :pcquan)
-(define pc:ran :pcran)
+(define pc:quant :mkquantize)
+(define pc:ran :mkrandom)
 
 
 (define kit playkit)
