@@ -81,8 +81,8 @@
           (when #f (monitor  volumes durs))
           (for-each (lambda (o p v d)
                       (play-midi-note (*metro* (+ beat o)) *mididevice*
-                                        (real->integer p)
-                                        (real->integer v)
+                                        (real->integer (eval p))
+                                        (real->integer (eval v))
                                         (*metro* 'dur (* *play-midi-default-dur-factor* d)) 
                                         ;; NOTE ch is 0based in xtm, but user sends it as 1-based
                                         (- ch 1)
@@ -156,8 +156,8 @@
                   ;; single-note: send midi message          
                   (play-midi-note (*metro* beat) 
                                 *mididevice*
-                                (real->integer ,(cadr args)) ;; pitch
-                                (real->integer ,(caddr args)) ;; vol
+                                (real->integer (eval ,(cadr args))) ;; pitch
+                                (real->integer (eval ,(caddr args))) ;; vol
                                 (*metro* 'dur 
                                   (* *play-midi-default-dur-factor* ,(cadddr args)) 
                                 ) ;; dur
@@ -180,8 +180,8 @@
                   ;; single-note: send midi message
                   (play-midi-note (*metro* (+ beat ,(car args)))         
                                   *mididevice*
-                                  (real->integer ,(caddr args))
-                                  (real->integer ,(cadddr args))
+                                  (real->integer (eval ,(caddr args)))
+                                  (real->integer  (eval ,(cadddr args)))
                                   (*metro* 'dur 
                                     (* *play-midi-default-dur-factor* 
                                       ,(cadr (cdddr args))))   
@@ -220,15 +220,15 @@
                     ; no offset
                     `(play-midi-note (*metro* beat) 
                                     *mididevice*
-                                    (real->integer ,(car args))
-                                    (real->integer ,(cadr args))
+                                    (real->integer (eval ,(car args)))
+                                    (real->integer (eval ,(cadr args)))
                                     (*metro* 'dur 1/16) ;; dur 1/8
                                     8) ;; midi always 8 == 9 in LIVE
                     ; 3 args, = it's an offset
                     `(play-midi-note (*metro* (+ beat ,(car args)))                
                                     *mididevice*
-                                    (real->integer ,(cadr args))
-                                    (real->integer ,(car (cddr args)))
+                                    (real->integer (eval ,(cadr args)))
+                                    (real->integer  (eval ,(car (cddr args))))
                                     (*metro* 'dur 1/16)
                                     8)))
 )
