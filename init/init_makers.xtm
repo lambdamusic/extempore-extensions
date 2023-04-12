@@ -285,7 +285,8 @@
 ; WHEN PASSING AN INTERVAL QUALITY (eg M/m/A/D)
 ; The interval gets calculated using the semitones count only
 ;
-; NOTE interval numbers use the traditional notation (differently from the numbers used in pc:relative)
+; INTERVAL NUMBERS e.g. 1, 2, 3.. 
+; We use the traditional notation (differently from the numbers used in pc:relative)
 ; That is: 
 ;; intervallo di 1 = unison (VS 0 in pc steps)
 ;; intervallo di 2 = next pitch in scale (VS 1 in pc steps)
