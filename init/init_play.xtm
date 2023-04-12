@@ -194,46 +194,6 @@
 
 
 
-;
-;
-;; PLAYKIT 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Wrapper around Play, to make it quicker to play drum sounds
-; Defaults: dur = 1/16 , midi CH = 9 
-;
-; Args:
-; --------
-; 1st: [OPTIONAL:offset  default = 0]
-; 2nd: pitch
-; 3rd: velocity/ vol
-;
-; Example:
-; --------
-; (let ((beat (*metro* 'get-beat)))
-;     (playkit k1 90)
-;     )
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(impc:aot:do-or-emit
-    (define-macro (playkit . args)
-                (if (length-equal? args 2) 
-                    ; no offset
-                    `(play-midi-note (*metro* beat) 
-                                    *mididevice*
-                                    (real->integer (eval ,(car args)))
-                                    (real->integer (eval ,(cadr args)))
-                                    (*metro* 'dur 1/16) ;; dur 1/8
-                                    8) ;; midi always 8 == 9 in LIVE
-                    ; 3 args, = it's an offset
-                    `(play-midi-note (*metro* (+ beat ,(car args)))                
-                                    *mididevice*
-                                    (real->integer (eval ,(cadr args)))
-                                    (real->integer  (eval ,(car (cddr args))))
-                                    (*metro* 'dur 1/16)
-                                    8)))
-)
-
-
 
 
 ;
@@ -330,7 +290,49 @@
 
 ;
 ;
-; ROLL
+;; PLAYKIT 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Wrapper around Play, to make it quicker to play drum sounds
+; Defaults: dur = 1/16 , midi CH = 9 
+;
+; Args:
+; --------
+; 1st: [OPTIONAL:offset  default = 0]
+; 2nd: pitch
+; 3rd: velocity/ vol
+;
+; Example:
+; --------
+; (let ((beat (*metro* 'get-beat)))
+;     (playkit k1 90)
+;     )
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (playkit . args)
+                (if (length-equal? args 2) 
+                    ; no offset
+                    `(play-midi-note (*metro* beat) 
+                                    *mididevice*
+                                    (real->integer (eval ,(car args)))
+                                    (real->integer (eval ,(cadr args)))
+                                    (*metro* 'dur 1/16) ;; dur 1/8
+                                    8) ;; midi always 8 == 9 in LIVE
+                    ; 3 args, = it's an offset
+                    `(play-midi-note (*metro* (+ beat ,(car args)))                
+                                    *mididevice*
+                                    (real->integer (eval ,(cadr args)))
+                                    (real->integer  (eval ,(car (cddr args))))
+                                    (*metro* 'dur 1/16)
+                                    8)))
+)
+
+
+
+
+;
+;
+; PLAYKITR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Legacy implentation of simple drum progressions. 
 ;; Dependency: 'kit' function
@@ -338,16 +340,16 @@
 ;
 ; Example
 ; (let ((beat (*metro* 'get-beat)))
-;    (playkitr k1 6 1/2))
+;    (playkitr k1 6 1/2 60))
 ;
 ; TODO 
 ; Allow passing MIDI ch (now relies on `kit` hence default is ch-9 )
 ; Provide more options and integrate with playkit
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-macro (playkitr pitch hits spacing)
+(define-macro (playkitr pitch hits spacing . vol)
   `(let loop ((i 0))
-      (play (* i ,spacing) 9 ,pitch (+ 60 (expt 2 i)) 1/16)
+      (play (* i ,spacing) 9 ,pitch ,@vol 1/16)
       (if (< i (- ,hits 1)) (loop (+ i 1)))))
 (define-macro (playkitrdown pitch)
    `(let loop ((i 0))
