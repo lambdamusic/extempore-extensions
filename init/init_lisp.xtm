@@ -11,6 +11,25 @@
 
 
 
+
+
+;; min & max
+;;;;;;;;;;;;
+;; (log-info (max '(3 3  3 2 7 23 7 )))
+(define (helper:min a b) (if (< a b) a b))
+(define (helper:max a b) (if (> a b) a b))
+(define (min-max lst)
+  (let helper ((lst (cdr lst)) (cur-min (car lst)) (cur-max (car lst)))
+    (if (null? lst)
+        (list cur-min  cur-max)
+        (helper (cdr lst)
+                (helper:min cur-min (car lst))
+                (helper:max cur-max (car lst))))))
+(define (min lst) (first (min-max lst)))
+(define (max lst) (last (min-max lst)))
+
+
+
 ;; https://stackoverflow.com/questions/35169581/determining-if-a-number-is-negative-in-scheme-with-one-function
 ; DISABLED 2022-10-09 => breaks with floating values
 ; (define (negative? x)
@@ -626,7 +645,6 @@
         ,args 
         ,@elseargs))
 
-
 (define ifr if-random)
 
 
@@ -634,6 +652,31 @@
 (define-macro (when-random x . args )
    `(when (> (random) ,x)
         (begin ,@args)))
+
+
+
+;;
+; (if= 2 3 (print 'ciao) (print 'baby))
+(define-macro (if= x y args . elseargs)
+   `(if (equal? ,x ,y)
+        ,args 
+        ,@elseargs))
+
+;;
+; (if< 2 3 (print 'ciao) (print 'baby))
+(define-macro (if< x y args . elseargs)
+   `(if (< ,x ,y)
+        ,args 
+        ,@elseargs))
+
+
+;;
+; (if> 2 3 (print 'ciao) (print 'baby))
+(define-macro (if> x y args . elseargs)
+   `(if (> ,x ,y)
+        ,args 
+        ,@elseargs))
+
 
 
 
