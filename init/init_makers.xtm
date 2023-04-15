@@ -66,6 +66,59 @@
 
 
 
+; 
+; used in :mkchordbystep
+(define *default_scale_len* 24)
+
+
+; 
+; :MKCHORDBYSTEP // 1-based (= tonic)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Returns a chord based on steps of a scale. Eg (:mkchordbystep 60 '(1 3 5) 'ionian  ) ; => tonic chord ie (60 64 67)
+; Optional args are: relative pitch (default: none) 
+; To determine the scale, accepts either a scale/mode (defaults ionian) or a M/m symbol. 
+; When a relative pitch is passed, the steps calculation begins from that pitch (if it exists in the scale)
+;
+; Examples:
+; (:mkchordbystep c4 '(1 3) 'M  ) ; => (60 64)
+; (:mkchordbystep 60 '(1 3 7) 'ionian  ) ; => (60 64 71)
+; (:mkchordbystep 60 '(1 3 7) 'ionian 62) ; => (62 65 72)  / start from D, in C Major
+; (:mkchordbystep 60 '(1 3 7) 'ionian 73) ; => (74 77 84)  / quantize 73 to 74 cause it's not in scale
+;
+; See also
+; (pc:melody-by-step 60 '(0 2) '(0 4 7)) ;=>'(60 60 67) 
+;
+(define :mkchordbystep
+  (lambda (seed steps scale . args)
+  ; (println args)
+   (cond ((null? args) ;; default
+          (takel steps (:mkscale seed scale *default_scale_len* )))      
+          ;
+          ((length-equal? args 1) 
+            ;; 1 arg: relative pitch 
+            ;; EG in C-major, D => starting from D, take 1, 3, 5
+            (let ((sc (:mkscale seed scale *default_scale_len* ))) 
+                ; (println (list-split-from (cadr args) sc)) 
+                (if (member (car args) sc) 
+                    (takel steps (list-split-from (car args) sc))
+                    (begin 
+                      (log-info "Error: Pitch not in scale. Quantizing..")
+                      (takel steps (list-split-from (:mkquantize (car args) sc) sc)))
+                )))  
+          ;
+          (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))              
+      )
+    )          
+) 
+
+
+
+
+
+
+
+
+
 
 ;
 ;

@@ -8,8 +8,6 @@
 
 
 ;; legacy implementation mappings
-(define pc:quant :mkquantize)
-(define pc:ran :mkrandom)
 
 
 (define kit playkit)
@@ -59,12 +57,13 @@
 
 
 
-(define  mkchord :mkchord)
+(define mkchord :mkchord)
 (define mkchordrandom :mkchordrandom )
 (define mkrelscale :mkrelscale )
-(define  mkscale :mkscale)
+(define mkscale :mkscale)
 (define mkrel :mkrel )
-
+(define pc:quant :mkquantize)
+(define pc:ran :mkrandomp)
 
 ;; old name for legacy compatibility
 (impc:aot:do-or-emit
