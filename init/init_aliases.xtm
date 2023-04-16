@@ -62,8 +62,8 @@
 (define mkrelscale :mkrelscale )
 (define mkscale :mkscale)
 (define mkrel :mkrel )
-(define pc:quant :mkquantize)
-(define pc:ran :mkrandomp)
+(define pc:quant :pcquantize)
+(define pc:ran :pcrandom)
 
 ;; old name for legacy compatibility
 (impc:aot:do-or-emit

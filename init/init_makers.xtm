@@ -103,7 +103,7 @@
                     (takel steps (list-split-from (car args) sc))
                     (begin 
                       (log-info "Error: Pitch not in scale. Quantizing..")
-                      (takel steps (list-split-from (:mkquantize (car args) sc) sc)))
+                      (takel steps (list-split-from (:pcquantize (car args) sc) sc)))
                 )))  
           ;
           (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))              
@@ -509,16 +509,20 @@
 
 ;
 ;
-; :mkrandomp
+; :PCRANDOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; wrapper around pc:random 
+;; wrapper around standard pc:random 
 ;;
 ;; Allows passing a scale symbol, or any list of pitches.
 ;; With symbol, it defauls to C as root.
 ;; (original only allows a 0-11 pitch class list) 
+;;
+;; Examples
+; (:pcrandom 60 70 'm) ; => 63
+; (:pcrandom 60 70 '(9)) ; => 69
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkrandomp
+(define :pcrandom
     (lambda (lower upper pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
@@ -531,24 +535,22 @@
 
 
 
-
-
 ;
 ;
-; :mkquantize
+; :PCQUANTIZE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrapper around pc:quantize
+;; wrapper around standard pc:quantize
 ;;
 ;; Allows passing a scale symbol, or any list of pitches.
 ;; With symbol, it defauls to C as root. 
 ;; (original only allows a 0-11 pitch class list) 
 ;;
 ;; Returns always the closest value
-;;  (:mkquantize 60 'M) => 60
-;;  (:mkquantize 60 (list 1 11)) => 61
-;;  (:mkquantize 60 (list 63 59)) => 59
+;;  (:pcquantize 60 'M) => 60
+;;  (:pcquantize 60 (list 1 11)) => 61
+;;  (:pcquantize 60 (list 63 59)) => 59
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkquantize
+(define :pcquantize
     (lambda (pitch-in pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
