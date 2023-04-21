@@ -512,15 +512,19 @@
 ; :PCRANDOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; wrapper around standard pc:random 
-;;
+;; Wrapper around standard pc:random 
 ;; Allows passing a scale symbol, or any list of pitches.
-;; With symbol, it defauls to C as root.
-;; (original only allows a 0-11 pitch class list) 
-;;
+;; (original only allows a 0-11 pitch class list)
+;; 
+; WHEN PASSING A LIST OF PITCH CLASSES
+; It behaves just live pc:random. The plist defines (eg scale or chord) the random selection options.
+;
+; WHEN PASSING A QUALITY OR SCALE MODE (eg M/m/aeonian/dorian)
+; It defauls to C as root. So all scales are C scales.
+; 
 ;; Examples
-; (:pcrandom 60 70 'm) ; => 63
-; (:pcrandom 60 70 '(9)) ; => 69
+; (:pcrandom 60 70 'M) ; => 60
+; (:pcrandom 60 70 (:mkscale 61 'M)) ; => 61
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define :pcrandom
     (lambda (lower upper pitch-list-or-sym)
@@ -539,16 +543,24 @@
 ;
 ; :PCQUANTIZE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; wrapper around standard pc:quantize
 ;;
+;; Wrapper around standard pc:quantize
 ;; Allows passing a scale symbol, or any list of pitches.
-;; With symbol, it defauls to C as root. 
 ;; (original only allows a 0-11 pitch class list) 
 ;;
-;; Returns always the closest value
-;;  (:pcquantize 60 'M) => 60
-;;  (:pcquantize 60 (list 1 11)) => 61
-;;  (:pcquantize 60 (list 63 59)) => 59
+; WHEN PASSING A LIST OF PITCH CLASSES
+; It behaves just live pc:quantize. The plist (eg scale or chord) defines the random selection options.
+;
+; WHEN PASSING A QUALITY OR SCALE MODE (eg M/m/aeonian/dorian)
+; It defauls to C as root. So all scales are C scales.
+; 
+;; Examples
+; (:pcquantize 60 'M) ; => 60
+; (:pcquantize 60 (:mkscale d0 'M)) ; => 61 / the 7th degree in dM
+;
+; NOTE pc:quantize always selects a higher value before a lower value where distance is equal.
+; https://extempore.michelepasin.org/def/pc-quantize.html
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define :pcquantize
     (lambda (pitch-in pitch-list-or-sym)
