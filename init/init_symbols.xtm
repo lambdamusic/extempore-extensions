@@ -6,6 +6,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SCALES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;; overriding defaults in https://github.com/digego/extempore/blob/v0.8.9/libs/core/pc_ivl.xtm
@@ -65,6 +68,11 @@
      (locrian . (1 2 2 1 2 2))))
 
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; CHORDS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;; CHORDS
@@ -145,6 +153,376 @@
 
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PITCH SYMBOLS
+; https://en.wikipedia.org/wiki/Scientific_pitch_notation
+;;
+;;  c0 = 12
+;;  c#0 = 13
+;;  db0 = 13
+;;  c1 = 24
+;;  c2 = 36
+;;  c3 = 48
+;;  c4 = 60
+;;  c5 = 72
+;;  c6 = 84
+;;  c7 = 96
+;;  c8 = 108
+;;  c9 = 120
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;; ENGLISH NOTATION 
+;; in UPPERCASE (defaults are lowercase)
+;; ==> defaults in https://github.com/digego/extempore/blob/v0.8.9/libs/core/pc_ivl.xtm
+;;
+
+
+(define __ -1) ;; rest
+
+(define C0 (- 60 48))
+(define C#0 (- 61 48))
+(define Db0 (- 61 48))
+(define D0 (- 62 48))
+(define D#0 (- 63 48))
+(define Eb0 (- 63 48))
+(define E0 (- 64 48))
+(define F0 (- 65 48))
+(define F#0 (- 66 48))
+(define Gb0 (- 66 48))
+(define G0 (- 67 48))
+(define G#0 (- 68 48))
+(define Ab0 (- 68 48))
+(define A0 (- 69 48))
+(define A#0 (- 70 48))
+(define Bb0 (- 70 48))
+(define B0 (- 71 48))
+(define Cb0 (- 71 48))
+
+(define C1 (- 60 36))
+(define C#1 (- 61 36))
+(define Db1 (- 61 36))
+(define D1 (- 62 36))
+(define D#1 (- 63 36))
+(define Eb1 (- 63 36))
+(define E1 (- 64 36))
+(define F1 (- 65 36))
+(define F#1 (- 66 36))
+(define Gb1 (- 66 36))
+(define G1 (- 67 36))
+(define G#1 (- 68 36))
+(define Ab1 (- 68 36))
+(define A1 (- 69 36))
+(define A#1 (- 70 36))
+(define Bb1 (- 70 36))
+(define B1 (- 71 36))
+(define Cb1 (- 71 36))
+
+(define C2 (- 60 24))
+(define C#2 (- 61 24))
+(define Db2 (- 61 24))
+(define D2 (- 62 24))
+(define D#2 (- 63 24))
+(define Eb2 (- 63 24))
+(define E2 (- 64 24))
+(define F2 (- 65 24))
+(define F#2 (- 66 24))
+(define Gb2 (- 66 24))
+(define G2 (- 67 24))
+(define G#2 (- 68 24))
+(define Ab2 (- 68 24))
+(define A2 (- 69 24))
+(define A#2 (- 70 24))
+(define Bb2 (- 70 24))
+(define B2 (- 71 24))
+(define Cb2 (- 71 24))
+
+(define C3 (- 60 12))
+(define C#3 (- 61 12))
+(define Db3 (- 61 12))
+(define D3 (- 62 12))
+(define D#3 (- 63 12))
+(define Eb3 (- 63 12))
+(define E3 (- 64 12))
+(define F3 (- 65 12))
+(define F#3 (- 66 12))
+(define Gb3 (- 66 12))
+(define G3 (- 67 12))
+(define G#3 (- 68 12))
+(define Ab3 (- 68 12))
+(define A3 (- 69 12))
+(define A#3 (- 70 12))
+(define Bb3 (- 70 12))
+(define B3 (- 71 12))
+(define Cb3 (- 71 12))
+
+(define C4 60)
+(define C#4 61)
+(define Db4 61)
+(define D4 62)
+(define D#4 63)
+(define Eb4 63)
+(define E4 64)
+(define F4 65)
+(define F#4 66)
+(define Gb4 66)
+(define G4 67)
+(define G#4 68)
+(define Ab4 68)
+(define A4 69)
+(define A#4 70)
+(define Bb4 70)
+(define B4 71)
+(define Cb4 71)
+
+(define C5 (+ 60 12))
+(define C#5 (+ 61 12))
+(define Db5 (+ 61 12))
+(define D5 (+ 62 12))
+(define D#5 (+ 63 12))
+(define Eb5 (+ 63 12))
+(define E5 (+ 64 12))
+(define F5 (+ 65 12))
+(define F#5 (+ 66 12))
+(define Gb5 (+ 66 12))
+(define G5 (+ 67 12))
+(define G#5 (+ 68 12))
+(define Ab5 (+ 68 12))
+(define A5 (+ 69 12))
+(define A#5 (+ 70 12))
+(define Bb5 (+ 70 12))
+(define B5 (+ 71 12))
+(define Cb5 (+ 71 12))
+
+(define C6 (+ 60 24))
+(define C#6 (+ 61 24))
+(define Db6 (+ 61 24))
+(define D6 (+ 62 24))
+(define D#6 (+ 63 24))
+(define Eb6 (+ 63 24))
+(define E6 (+ 64 24))
+(define F6 (+ 65 24))
+(define F#6 (+ 66 24))
+(define Gb6 (+ 66 24))
+(define G6 (+ 67 24))
+(define G#6 (+ 68 24))
+(define Ab6 (+ 68 24))
+(define A6 (+ 69 24))
+(define A#6 (+ 70 24))
+(define Bb6 (+ 70 24))
+(define B6 (+ 71 24))
+(define Cb6 (+ 71 24))
+
+(define C7 (+ 60 36))
+(define C#7 (+ 61 36))
+(define Db7 (+ 61 36))
+(define D7 (+ 62 36))
+(define D#7 (+ 63 36))
+(define Eb7 (+ 63 36))
+(define E7 (+ 64 36))
+(define F7 (+ 65 36))
+(define F#7 (+ 66 36))
+(define Gb7 (+ 66 36))
+(define G7 (+ 67 36))
+(define G#7 (+ 68 36))
+(define Ab7 (+ 68 36))
+(define A7 (+ 69 36))
+(define A#7 (+ 70 36))
+(define Bb7 (+ 70 36))
+(define B7 (+ 71 36))
+(define Cb7 (+ 71 36))
+
+(define C8 (+ 60 48))
+(define C#8 (+ 61 48))
+(define Db8 (+ 61 48))
+(define D8 (+ 62 48))
+(define D#8 (+ 63 48))
+(define Eb8 (+ 63 48))
+(define E8 (+ 64 48))
+(define F8 (+ 65 48))
+(define F#8 (+ 66 48))
+(define Gb8 (+ 66 48))
+(define G8 (+ 67 48))
+(define G#8 (+ 68 48))
+(define Ab8 (+ 68 48))
+(define A8 (+ 69 48))
+(define A#8 (+ 70 48))
+(define Bb8 (+ 70 48))
+(define B8 (+ 71 48))
+(define Cb8 (+ 71 48))
+
+
+;; No octave version // defaults to central C4
+;;
+(define C C4)
+(define C# C#4)
+(define Db Db4)
+(define D D4)
+(define D# D#4)
+(define Eb Eb4)
+(define E E4)
+(define F F4)
+(define F# F#4)
+(define Gb Gb4)
+(define G G4)
+(define G# G#4)
+(define Ab Ab4)
+(define A A4)
+(define A# A#4)
+(define Bb Bb4)
+(define B B4)
+(define Cb Cb4)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; 
+;; ROMANCE NOTATION
+;;
+
+
+;; With octaves
+;; NOTE Only alteration provided is # 
+; 
+
+(define DO0 12) ;;;;;
+(define DO0# 13)
+(define RE0 14)
+(define RE0# 15)
+(define MI0 16)
+(define FA0 17)
+(define FA0# 18)
+(define SOL0 19)
+(define SOL0# 20)
+(define LA0 21)
+(define LA0# 22)
+(define SI0 23)
+(define DO1 24) ;;;;;
+(define DO1# 25)
+(define RE1 26)
+(define RE1# 27)
+(define MI1 28)
+(define FA1 29)
+(define FA1# 30)
+(define SOL1 31)
+(define SOL1# 32)
+(define LA1 33)
+(define LA1# 34)
+(define SI1 35)
+(define DO2 36) ;;;;;
+(define DO2# 37)
+(define RE2 38)
+(define RE2# 39)
+(define MI2 40)
+(define FA2 41)
+(define FA2# 42)
+(define SOL2 43)
+(define SOL2# 44)
+(define LA2 45)
+(define LA2# 46)
+(define SI2 47)
+(define DO3 48) ;;;;;
+(define DO3# 49)
+(define RE3 50)
+(define RE3# 51)
+(define MI3 52)
+(define FA3 53)
+(define FA3# 54)
+(define SOL3 55)
+(define SOL3# 56)
+(define LA3 57)
+(define LA3# 58)
+(define SI3 59)
+(define DO4 60) ;;;;;
+(define DO4# 61)
+(define RE4 62)
+(define RE4# 63)
+(define MI4 64)
+(define FA4 65)
+(define FA4# 66)
+(define SOL4 67)
+(define SOL4# 68)
+(define LA4 69)
+(define LA4# 70)
+(define SI4 71)
+(define DO5 72) ;;;;;
+(define DO5# 73)
+(define RE5 74)
+(define RE5# 75)
+(define MI5 76)
+(define FA5 77)
+(define FA5# 78)
+(define SOL5 79)
+(define SOL5# 80)
+(define LA5 81)
+(define LA5# 82)
+(define SI5 83)
+(define DO6 84) ;;;;;
+(define DO6# 85)
+(define RE6 86)
+(define RE6# 87)
+(define MI6 88)
+(define FA6 89)
+(define FA6# 90)
+(define SOL6 91)
+(define SOL6# 92)
+(define a6 93)
+(define a6# 94)
+(define SI6 95)
+(define DO7 96) ;;;;;
+(define DO7# 97)
+(define RE7 98)
+(define RE7# 99)
+(define MI7 100)
+(define FA7 101)
+(define FA7# 102)
+(define SOL7 103)
+(define SOL7# 104)
+(define LA7 105)
+(define LA7# 106)
+(define SI7 107)
+(define DO8 108) ;;;;;
+(define DO8# 109)
+(define RE8 110)
+(define RE8# 111)
+(define MI8 112)
+(define FA8 113)
+(define FA8# 114)
+(define SOL8 115)
+(define SOL8# 116)
+(define LA8 117)
+(define LA8# 118)
+(define SI8 119)
+(define DO9 120) ;;;;;
+
+
+;; No octave verSIon // deFAults to central C4
+;;
+(define DO 60) ;;;;;
+(define DO# 61)
+(define RE 62)
+(define RE# 63)
+(define MI 64)
+(define FA 65)
+(define FA# 66)
+(define SOL 67)
+(define SOL# 68)
+(define LA 69)
+(define LA# 70)
+(define SI 71)
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DRUMS SYMBOLS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;; drum kit instruments positions for Ableton LIVE
 
 (define k1 36) ;1
@@ -189,11 +567,7 @@
 (define sample4-4 39) ;4
 
 
-
-
-
-
-;; A few standard position for specific drum parts
+;; Standard position for specific drum parts
 ;;
 ;;
 ;; base drums      20-29 - bd
@@ -304,149 +678,3 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;; 
-;; Pitch English notation
-;; https://en.wikipedia.org/wiki/Scientific_pitch_notation
-;;
-;; 2021-01-04 => using defaults from https://github.com/digego/extempore/blob/v0.8.9/libs/core/pc_ivl.xtm
-;; IE
-;;  c0 = 12
-;;  c1 = 24
-;;  c2 = 36
-;;  c3 = 48
-;;  c4 = 60
-;;  c5 = 72
-;;  c6 = 84
-;;  c7 = 96
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;; 
-;; Romance notation
-;;
-; # TODO FIX pitch references so that they match the english notation
-(define do0 24) ;;;;;
-(define do0# 25)
-(define re0 26)
-(define re0# 27)
-(define mi0 28)
-(define fa0 29)
-(define fa0# 30)
-(define sol0 31)
-(define sol0# 32)
-(define la0 33)
-(define la0# 34)
-(define si0 35)
-(define do1 36) ;;;;;
-(define do1# 37)
-(define re1 38)
-(define re1# 39)
-(define mi1 40)
-(define fa1 41)
-(define fa1# 42)
-(define sol1 43)
-(define sol1# 44)
-(define la1 45)
-(define la1# 46)
-(define si1 47)
-(define do2 48) ;;;;;
-(define do2# 49)
-(define re2 50)
-(define re2# 51)
-(define mi2 52)
-(define fa2 53)
-(define fa2# 54)
-(define sol2 55)
-(define sol2# 56)
-(define la2 57)
-(define la2# 58)
-(define si2 59)
-(define do3 60) ;;;;;
-(define do3# 61)
-(define re3 62)
-(define re3# 63)
-(define mi3 64)
-(define fa3 65)
-(define fa3# 66)
-(define sol3 67)
-(define sol3# 68)
-(define la3 69)
-(define la3# 70)
-(define si3 71)
-(define do4 72) ;;;;;
-(define do4# 73)
-(define re4 74)
-(define re4# 75)
-(define mi4 76)
-(define fa4 77)
-(define fa4# 78)
-(define sol4 79)
-(define sol4# 80)
-(define la4 81)
-(define la4# 82)
-(define si4 83)
-(define do5 84) ;;;;;
-(define do5# 85)
-(define re5 86)
-(define re5# 87)
-(define mi5 88)
-(define fa5 89)
-(define fa5# 90)
-(define sol5 91)
-(define sol5# 92)
-(define la5 93)
-(define la5# 94)
-(define si5 95)
-(define do6 96) ;;;;;
-(define do6# 97)
-(define re6 98)
-(define re6# 99)
-(define mi6 100)
-(define fa6 101)
-(define fa6# 102)
-(define sol6 103)
-(define sol6# 104)
-(define a6 105)
-(define a6# 106)
-(define si6 107)
-(define do7 108) ;;;;;
-(define do7# 109)
-(define re7 110)
-(define re7# 111)
-(define mi7 112)
-(define fa7 113)
-(define fa7# 114)
-(define sol7 115)
-(define sol7# 116)
-(define la7 117)
-(define la7# 118)
-(define si7 119)
-(define do8 120) ;;;;;
-(define do8# 121)
-(define re8 122)
-(define re8# 123)
-(define mi8 124)
-(define fa8 125)
-(define fa8# 126)
-(define sol8 127)
-(define sol8# 128)
-(define la8 129)
-(define la8# 130)
-(define si8 131)
-(define do9 132) ;;;;;
-
-;;
-;; shortcut // default octaves implied
-;;
-(define do 60) ;;;;;
-(define do# 61)
-(define re 62)
-(define re# 63)
-(define mi 64)
-(define fa 65)
-(define fa# 66)
-(define sol 67)
-(define sol# 68)
-(define la 69)
-(define la# 70)
-(define si 71)
