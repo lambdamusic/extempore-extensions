@@ -109,15 +109,14 @@
 
 
 
-
 ;+
-; repeat
+; repeat [can use R too]
 ; eg (rep 2 4) => (2 2 2 2)
 (define (rep x y)
   (if (zero? y)
       '()
       (cons x
-            (R x (- y 1)))))
+            (rep x (- y 1)))))
 
 
 
@@ -240,12 +239,16 @@
 
 
 
-;
-;; (subst 9 7 '(5 (5 6 7 (6 7))))    =>  (5 (5 6 9 (6 9)))  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DEPRECATED / missing dependencies
+;; subst amd sublis have gone missing? 
+;; https://extempore.michelepasin.org/def/subst.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (cl:subst 9 7 '(5 (5 6 7 (6 7))))    =>  (5 (5 6 9 (6 9)))  
 (define (cl:subst new old tree)
   (if (pair? tree)
-      (let ((left (subst new old (car tree)))
-            (right (subst new old (cdr tree))))
+      (let ((left (subst  new old (car tree)))
+            (right (subst  new old (cdr tree))))
         (if (and (eq? left (car tree))
                  (eq? right (cdr tree)))
             tree
@@ -254,9 +257,12 @@
           new
           tree)))
 
-
-;
-;; (sublis '((6 . 9) (7 . 10)) '(5 (5 6 7 (6 7)))))  => (5 (5 9 10 (9 10)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DEPRECATED / missing dependencies
+;; subst amd sublis have gone missing? 
+;; https://extempore.michelepasin.org/def/subst.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (cl:sublis '((6 . 9) (7 . 10)) '(5 (5 6 7 (6 7)))))  => (5 (5 9 10 (9 10)))
 (define (cl:sublis alist tree)
   (if (pair? tree)
       (let ((left (sublis alist (car tree)))
