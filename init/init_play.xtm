@@ -290,7 +290,7 @@
 
 ;
 ;
-;; PLAYKIT 
+;; PLAYK 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Wrapper around Play, to make it quicker to play drum sounds
 ; Defaults: dur = 1/16 , midi CH = 9 
@@ -304,12 +304,12 @@
 ; Example:
 ; --------
 ; (let ((beat (*metro* 'get-beat)))
-;     (playkit k1 90)
+;     (playk k1 90)
 ;     )
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (impc:aot:do-or-emit
-    (define-macro (playkit . args)
+    (define-macro (playk . args)
                 (if (length-equal? args 2) 
                     ; no offset
                     `(play-midi-note (*metro* beat) 
@@ -332,7 +332,7 @@
 
 ;
 ;
-; PLAYKITR
+; PLAYKR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Legacy implentation of simple drum progressions. 
 ;; Dependency: 'kit' function
@@ -340,22 +340,23 @@
 ;
 ; Example
 ; (let ((beat (*metro* 'get-beat)))
-;    (playkitr k1 6 1/2 60))
+;    (playkr k1 6 1/2 60))
 ;
 ; TODO 
-; Allow passing MIDI ch (now relies on `kit` hence default is ch-9 )
-; Provide more options and integrate with playkit
+; - Allow passing MIDI ch (now relies on `kit` hence default is ch-9 )
+; - Provide more options and integrate with playk
+; - BUG: if vol is not passed, fails with spacing < 1/2
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-macro (playkitr pitch hits spacing . vol)
+(define-macro (playkr pitch hits spacing . vol)
   `(let loop ((i 0))
       (play (* i ,spacing) 9 ,pitch ,@vol 1/16)
       (if (< i (- ,hits 1)) (loop (+ i 1)))))
-(define-macro (playkitrdown pitch)
+(define-macro (playkrdown pitch)
    `(let loop ((i 0))
          (play (* i 1/10) 9 ,pitch (- 110 (expt 4 i)) 1/16)
          (if (< i 3) (loop (+ i 1)))))
-(define-macro (playkitrrollup pitch)
+(define-macro (playkrrollup pitch)
    `(let loop ((i 0))
          (play (* i 1/10) 9 ,pitch (+ 50 (expt 4 i)) 1/16)
          (if (< i 3) (loop (+ i 1)))))

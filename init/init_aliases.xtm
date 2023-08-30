@@ -9,8 +9,9 @@
 
 ;; legacy implementation mappings
 
+(define playkit playk)
+(define kit playk)
 
-(define kit playkit)
 
 
 (impc:aot:do-or-emit

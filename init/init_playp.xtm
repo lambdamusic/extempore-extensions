@@ -274,6 +274,39 @@
 
 
 
+;
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PLAYKP - PlayPattern function - for playk i.e. channel 9 default
+;
+; Prerequisites:
+; - `beat` and `dur` symbols bound in outer function
+; - symbol `*mididevice*` MAPPED TO AN OUTPUT STREAM
+;
+; Signature:
+; playkp N:bars [opt:N:durOffset] [opt:N:pOffset] ():pattern ():vols [opt:N:dur] 
+;
+; Args:
+; - cycle-dur 
+; - offset [default = 0]
+; - poffset [default = 0]
+; - plist
+; - vol
+; - dur [default =  cycle / len(plist) * 0.9]
+;
+; See playp comments for more info
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (playkp . args)
+        (let ((newargs (cons 9 args)))
+        ;  (log-info newargs)
+        `(helper:mmplayp_f_with_offset beat dur *mididevice* ,@newargs))
+         )      
+)
+
+
+
+
 
 
 
