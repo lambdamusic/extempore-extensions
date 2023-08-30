@@ -584,17 +584,19 @@
 ;; Helper method for 'octave' 
 ;; example
 ;; (in-octave 60 1 3) ; +> 12
+;; 2023-08-08: always return a pitch even when octave int is wrong
 (define to-octave 
   (lambda (pitch min max)
-    (if (> (+ min max) 16) 
-        (log-info "Octaves number should be between 1 and 8. 5=60/c4") 
+    (if (or (< min 1) (< max 1) (> min 9) (> max 9))
+        (begin  
+          (log-info "Octaves number should be between 1 and 9. 5=60/c4")
+          pitch) 
         (let ((octavemin (* min 12)) 
               (octavemax (* max 12)))   
           (if (or (< pitch octavemin) (> pitch octavemax)) 
             (add (pc:pc pitch) octavemin)  
             pitch))))) 
     
-
 
 
 ;; OCTAVE 
@@ -613,6 +615,7 @@
 ;;  Octave 6 = c5 = 72
 ;;  Octave 7 = c6 = 84  // 7th octave starts
 ;;  Octave 8 = c7 = 96
+;;  Octave 9 = c8 = 108
 ;
 ;; Examples
 ; (octave 10) ; +> 22 / simply add 12 semitones
@@ -624,10 +627,11 @@
 (define octave
   (lambda (plist . args)
   ; (println args)
-   (cond ((null? args) ;; default - intervallo di ottava
+   (cond ((null? args) 
+          ;; 1 arg  - plist => intervallo di ottava
           (add 12 plist))   
           ((length-equal? args 1) 
-           ;; 1 arg = min boundary only / max boundary inferred 
+           ;; 2 arg = plist and min boundary => max boundary inferred as min+1
            (if (list? plist) 
                   (map (lambda (x)
                       (to-octave x (car args) (+ (car args) 1)))  
@@ -636,7 +640,7 @@
            )  
             
           ((length-equal? args 2) 
-            ;; 2 args: min boundary, max boundary
+            ;; 3 args: plist, min boundary, max boundary
            (if (list? plist) 
                   (map (lambda (x)
                       (to-octave x (car args) (cadr args)))  
