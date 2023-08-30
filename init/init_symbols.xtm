@@ -499,7 +499,7 @@
 (define DO9 120) ;;;;;
 
 
-;; No octave verSIon // deFAults to central C4
+;; No octave version // deFAults to central C4
 ;;
 (define DO 60) ;;;;;
 (define DO# 61)
@@ -519,11 +519,55 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; DRUMS SYMBOLS
+; DRUMS SYMBOLS - ABLETON LIVE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ABLETON LIVE: drum kit default sample positions 
+;; normally drum instruments have 4x4 rows of samples
+
+(define x1 48) ;13  TOP ROW
+(define x2 49) ;14
+(define x3 50) ;15
+(define x4 51) ;16
+
+(define x5 44) ;9  SECOND DOWN
+(define x6 45) ;10
+(define x7 46) ;11
+(define x8 47) ;12
+
+(define x9 40) ;5 THIRD DOWN
+(define x10 41) ;6
+(define x11 42) ;7
+(define x12 43) ;8
+
+(define x13 36) ;1 BOTTOM ROW
+(define x14 37) ;2
+(define x15 38) ;3
+(define x16 39) ;4
 
 
-;; drum kit instruments positions for Ableton LIVE
+;; alternative syntax based on rows
+
+(define r11 48) ;13  TOP ROW
+(define r12 49) ;14
+(define r13 50) ;15
+(define r14 51) ;16
+
+(define r21 44) ;9  SECOND DOWN
+(define r22 45) ;10
+(define r23 46) ;11
+(define r24 47) ;12
+
+(define r31 40) ;5 THIRD DOWN
+(define r32 41) ;6
+(define r33 42) ;7
+(define r34 43) ;8
+
+(define r41 36) ;1 BOTTOM ROW
+(define r42 37) ;2
+(define r43 38) ;3
+(define r44 39) ;4
+
+;; LEGACY mappings based on ascending midi numbers 
 
 (define k1 36) ;1
 (define k2 37) ;2
@@ -544,28 +588,9 @@
 
 
 
-;;; May 5, 2022 / Alternative PADS mappings for Ableton
-
-(define sample1-1 48) ;13  TOP ROW
-(define sample1-2 49) ;14
-(define sample1-3 50) ;15
-(define sample1-4 51) ;16
-
-(define sample2-1 44) ;9  SECOND DOWN
-(define sample2-2 45) ;10
-(define sample2-3 46) ;11
-(define sample2-4 47) ;12
-
-(define sample3-1 40) ;5 THIRD DOWN
-(define sample3-2 41) ;6
-(define sample3-3 42) ;7
-(define sample3-4 43) ;8
-
-(define sample4-1 36) ;1 BOTTOM ROW
-(define sample4-2 37) ;2
-(define sample4-3 38) ;3
-(define sample4-4 39) ;4
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DRUMS SYMBOLS - STANDARDs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Standard position for specific drum parts
 ;;
