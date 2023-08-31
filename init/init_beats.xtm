@@ -243,25 +243,46 @@
 
 
 
-
-
-
 ;
 ;
-;; EVERY N loops, do X, ELSE Y
+;; EVERY N loops, do X (X is a sequence of procedures)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Requires `LC` symbol to be in scope and incremented at each iteration
+; Requires `lc` symbol to be in scope and incremented at each iteration
 ;
-; (let ((LC 4))
-;   (every 2 (list 4 5) 'no)
+; (let ((lc 4))
+;   (every 2 (println 'hi) (println 'there))
 ;   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-macro (every . args)
-  ;;(println args)
-   `(if (= (modulo LC ,(car args)) 0)
-        ,(cadr args)
-        ,(caddr args)))
+(impc:aot:do-or-emit
+    (define-macro (every n . args)
+    ;    (println 'args n args)
+    `(if (= (modulo lc ,n) 0)
+            (begin ,@args)))
+)
 
+
+
+
+
+
+
+;
+;
+;; EVERYELSE N loops, do X, ELSE Y - BOTH X and Y required
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Requires `lc` symbol to be in scope and incremented at each iteration
+;
+; (let ((lc 4))
+;   (everyelse 2 (list 4 5) 'no)
+;   )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(impc:aot:do-or-emit
+    (define-macro (everyelse . args)
+    ;;(println args)
+    `(if (= (modulo lc ,(car args)) 0)
+            ,(cadr args)
+            ,(caddr args)))
+)
 
 
 

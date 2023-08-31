@@ -517,7 +517,7 @@
 ;; (original only allows a 0-11 pitch class list)
 ;; 
 ; WHEN PASSING A LIST OF PITCH CLASSES
-; It behaves just live pc:random. The plist defines (eg scale or chord) the random selection options.
+; It behaves just like pc:random. The plist defines (eg scale or chord) the random selection options.
 ;
 ; WHEN PASSING A QUALITY OR SCALE MODE (eg M/m/aeonian/dorian)
 ; It defauls to C as root. So all scales are C scales.

@@ -547,25 +547,25 @@
 
 ;; alternative syntax based on rows
 
-(define r11 48) ;13  TOP ROW
-(define r12 49) ;14
-(define r13 50) ;15
-(define r14 51) ;16
+(define x11 48) ;13  TOP ROW
+(define x12 49) ;14
+(define x13 50) ;15
+(define x14 51) ;16
 
-(define r21 44) ;9  SECOND DOWN
-(define r22 45) ;10
-(define r23 46) ;11
-(define r24 47) ;12
+(define x21 44) ;9  SECOND DOWN
+(define x22 45) ;10
+(define x23 46) ;11
+(define x24 47) ;12
 
-(define r31 40) ;5 THIRD DOWN
-(define r32 41) ;6
-(define r33 42) ;7
-(define r34 43) ;8
+(define x31 40) ;5 THIRD DOWN
+(define x32 41) ;6
+(define x33 42) ;7
+(define x34 43) ;8
 
-(define r41 36) ;1 BOTTOM ROW
-(define r42 37) ;2
-(define r43 38) ;3
-(define r44 39) ;4
+(define x41 36) ;1 BOTTOM ROW
+(define x42 37) ;2
+(define x43 38) ;3
+(define x44 39) ;4
 
 ;; LEGACY mappings based on ascending midi numbers 
 
