@@ -524,28 +524,7 @@
 ;; ABLETON LIVE: drum kit default sample positions 
 ;; normally drum instruments have 4x4 rows of samples
 
-(define x1 48) ;13  TOP ROW
-(define x2 49) ;14
-(define x3 50) ;15
-(define x4 51) ;16
-
-(define x5 44) ;9  SECOND DOWN
-(define x6 45) ;10
-(define x7 46) ;11
-(define x8 47) ;12
-
-(define x9 40) ;5 THIRD DOWN
-(define x10 41) ;6
-(define x11 42) ;7
-(define x12 43) ;8
-
-(define x13 36) ;1 BOTTOM ROW
-(define x14 37) ;2
-(define x15 38) ;3
-(define x16 39) ;4
-
-
-;; alternative syntax based on rows
+;; syntax based on rows with two digits row+position
 
 (define x11 48) ;13  TOP ROW
 (define x12 49) ;14
@@ -566,6 +545,29 @@
 (define x42 37) ;2
 (define x43 38) ;3
 (define x44 39) ;4
+
+;; old syntax deprecated 2023-09-01
+
+; (define x1 48) ;13  TOP ROW
+; (define x2 49) ;14
+; (define x3 50) ;15
+; (define x4 51) ;16
+
+; (define x5 44) ;9  SECOND DOWN
+; (define x6 45) ;10
+; (define x7 46) ;11
+; (define x8 47) ;12
+
+; (define x9 40) ;5 THIRD DOWN
+; (define x10 41) ;6
+; (define x11 42) ;7
+; (define x12 43) ;8
+
+; (define x13 36) ;1 BOTTOM ROW
+; (define x14 37) ;2
+; (define x15 38) ;3
+; (define x16 39) ;4
+
 
 ;; LEGACY mappings based on ascending midi numbers 
 
