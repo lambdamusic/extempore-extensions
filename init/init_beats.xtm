@@ -295,6 +295,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; shortcut for printing out variables while in loops , using beat // default on 1/4
 ;
+; 2023-10-19: log-info and print symbols name
 ;; Example
 ;
 ; (let ((beat (*metro* 'get-beat))
@@ -303,10 +304,17 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-macro (monitor . args)
-    (if (number? (car args))
-        `(onbeat ,(car args) 0 (println ,@(cdr args)))
-        `(onbeat 1/4 0 (println ,@args))
+    `(if (defined? 'beat) ;; check if variable exists
+        (if (number? (quote ,(car args))) ;; get the args, but don't eval them for number?
+            (onbeat ,(car args) 0 (log-info 'monitor (quote ,(cdr args)) '=>  ,@(cdr args)))
+            (onbeat 1/4 0 (log-info 'monitor (quote ,args) '=> ,@args)))
+        (log-warn "Monitor requires 'beat variable in scope")
     ))
 
-
+; PREV VERSION:
+; (define-macro (monitor . args)
+;     (if (number? (car args))
+;         `(onbeat ,(car args) 0 (log-info 'monitor (quote ,(cdr args)) '=>  ,@(cdr args)))
+;         `(onbeat 1/4 0 (log-info 'monitor (quote ,args) '=> ,@args))
+;     ))
 
