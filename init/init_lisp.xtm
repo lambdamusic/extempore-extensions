@@ -852,6 +852,30 @@
 
 
 
+
+;
+;
+;; APPEND OVERRIDE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Append either an element or a list to another list
+; (original appen only appends a list to a list)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define oldappend append)
+(define-macro (better-append . args)
+    ; (log-info args)
+    `(if (list? ,(car args)) 
+        (begin 
+          ; (log-info "it's a list") 
+          (oldappend ,@args))
+        (begin 
+          ; (log-info "not a list") 
+          (oldappend (list ,(car args)) ,@(cdr args)))))
+(define append better-append)
+
+
+
+
+
 ;
 ; oo:make-object
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
