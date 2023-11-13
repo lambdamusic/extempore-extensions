@@ -729,6 +729,20 @@
        `(real->rational (+ ,(caddr args) (* ,(cadddr args) (cos (* 2pi (+ beat ,(cadr args)) ,(car (cddddr args)))))))
        `(real->rational (+ ,(cadr args) (* ,(caddr args) (cos (* 2pi beat ,(cadddr args))))))))
 
+;
+; enhanced version of rectr that also floors the value - for ratios
+(macro (rectratio args)
+   (if (> (length args) 4)
+       `(real->rational (+ ,(caddr args) (* ,(cadddr args) (rect (* TWOPI (+ beat ,(cadr args)) ,(car (cddddr args)))))))
+       `(real->rational (+ ,(cadr args) (* ,(caddr args) (rect (* TWOPI beat ,(cadddr args))))))))
+;
+; enhanced version of rectr that also floors the value 
+(macro (rectrfloor args)
+   (if (> (length args) 4)
+       `(floor (+ ,(caddr args) (* ,(cadddr args) (rect (* TWOPI (+ beat ,(cadr args)) ,(car (cddddr args)))))))
+       `(floor (+ ,(cadr args) (* ,(caddr args) (rect (* TWOPI beat ,(cadddr args))))))))
+
+
 
 
 ;

@@ -293,28 +293,31 @@
 ;
 ;; MONITOR values 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; shortcut for printing out variables while in loops , using beat // default on 1/4
+; shortcut for printing out variables while in loops
 ;
 ; 2023-10-19: log-info and print symbols name
+; 2023-11-01: simplified, removed beat dependenct
 ;; Example
-;
-; (let ((beat (*metro* 'get-beat))
-;         (v1 2) (v2 4)) 
-;     (monitor v1 v2))
+;  (at 2 0 (monitor v1 v2))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-macro (monitor . args)
-    `(if (defined? 'beat) ;; check if variable exists
-        (if (number? (quote ,(car args))) ;; get the args, but don't eval them for number?
-            (onbeat ,(car args) 0 (log-info 'monitor (quote ,(cdr args)) '=>  ,@(cdr args)))
-            (onbeat 1/4 0 (log-info 'monitor (quote ,args) '=> ,@args)))
-        (log-warn "Monitor requires 'beat variable in scope")
+    `(begin 
+        (log-info (quote ,args) '=> ,@args)
     ))
-
-; PREV VERSION:
+;
+; PREV VERSIONS:
 ; (define-macro (monitor . args)
 ;     (if (number? (car args))
 ;         `(onbeat ,(car args) 0 (log-info 'monitor (quote ,(cdr args)) '=>  ,@(cdr args)))
 ;         `(onbeat 1/4 0 (log-info 'monitor (quote ,args) '=> ,@args))
 ;     ))
-
+; 2023-10-19: take first downbeat when to monitor, checks if beat exists
+; (define-macro (monitor . args)
+;     (log-info 'beat)
+;     `(if (defined? 'beat) ;; check if variable exists
+;         (if (number? (quote ,(car args))) ;; get the args, but don't eval them for number?
+;             (onbeat ,(car args) 0 (log-info 'monitor (quote ,(cdr args)) '=>  ,@(cdr args)))
+;             (onbeat 1/4 0 (log-info 'monitor (quote ,args) '=> ,@args)))
+;         (log-warn "Monitor requires 'beat variable in scope")
+;     ))
