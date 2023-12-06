@@ -651,7 +651,6 @@
         ,args 
         ,@elseargs))
 
-(define ifr if-random)
 
 
 ;; (when (> (random) .1) (print 'ca) (print 'ciao))
@@ -702,7 +701,7 @@
 ;; if the cdr of the list-condition exists, then proceed / else alternaive
 ;;
 ;; example
-; (if-cdr-notnull2 '(a)
+; (if-cdr-notnull '(a)
 ;   (log-info 'good-cdr)
 ;   (log-info 'bad-cdr))  ;; => true
 ;;
@@ -775,7 +774,7 @@
 
 ;; rotatedeep
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Rotates a list of lists. The inner lists are also rotated.
+; Rotates a list of lists, so that the inner lists are also rotated.
 ;
 ; arg1: a list
 ; arg2: opt[default: -1] 1 or -1 to determine rotation direction
