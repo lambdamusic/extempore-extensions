@@ -59,9 +59,19 @@ alias xtm-plus="cd $EXTEMPORE_RUNTIME;./extempore --frames 256 --run '$EXTEMPORE
 ```
 
 
+## VSCode resources
+
+The [backups](backups/) folder contains snippets and keybindings files for VSCode, as well as other potentially reusable bits and pieces. 
+
+
 ## See also
 
 - [The Musical Code](https://github.com/lambdamusic/The-Musical-Code) and its counterpart [YouTube channel](https://www.youtube.com/channel/UCanqSICbxzRNEZGMlu8qfyw)
 - Unofficial Extempore [Functions Explorer](https://extempore.michelepasin.org/) 
 - [My livecoding blog](https://www.michelepasin.org/words/index.html%3Ftag=algorithmiccomposition.html) 
 - Livecoding community: [TOPLAP](https://toplap.org/about/)
+
+
+## Changelog
+
+* 2023-11-24: VScode snippets moved to [backups](backups/vscode-snippets/) folder.

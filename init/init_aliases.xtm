@@ -13,6 +13,10 @@
 (define kit playk)
 
 
+(define sortasc sorta)
+(define sortdesc sortd)
+
+
 
 (impc:aot:do-or-emit
     (define-macro (:steps . args)
@@ -28,11 +32,9 @@
 (define steps :steps)
 
 (define offset :add)
-
+(define add :add)
 
 (define at-btw atbtw)
-
-(define add :add)
 
 (define repeat rep)
 (define R rep)
@@ -41,16 +43,14 @@
 
 
 (define ifchance if-random)
-
 (define :ifchance if-random)
-
-
-
 (define chance if-random) ; 2021-03-07
-
 (define :chance if-random)
+(define ifr if-random)
+(define ifrnd if-random)
 
 (define :mcc :midicc)
+(define midic :midicc)
 (define mcc :mcc)
 
 
