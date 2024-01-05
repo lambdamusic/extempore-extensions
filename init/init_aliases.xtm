@@ -17,6 +17,8 @@
 (define sortdesc sortd)
 
 
+(define cdr-or-else if-cdr-else)
+
 
 (impc:aot:do-or-emit
     (define-macro (:steps . args)

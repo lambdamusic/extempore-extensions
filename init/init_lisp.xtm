@@ -691,8 +691,8 @@
 ;; used in temporal recursions to loop through a list, and eventually go back to a seed list
 ;;
 ;; example
-;; (cdr-or-else '(a) '(a b)) ; => '(a b)
-(define-macro (cdr-or-else list1 list2)
+;; (if-cdr-else '(a) '(a b)) ; => '(a b)
+(define-macro (if-cdr-else list1 list2)
    `(if (null? (cdr ,list1))
         ,list2
         (cdr ,list1)))
