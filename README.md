@@ -66,11 +66,11 @@ The [backups](backups/) folder contains snippets and keybindings files for VSCod
 
 ## See also
 
-- [The Musical Code](https://github.com/lambdamusic/The-Musical-Code) and its counterpart [YouTube channel](https://www.youtube.com/channel/UCanqSICbxzRNEZGMlu8qfyw)
+- [Extempore language project](https://github.com/digego/extempore)
 - Unofficial Extempore [Functions Explorer](https://extempore.michelepasin.org/) 
-- [My livecoding blog](https://www.michelepasin.org/words/index.html%3Ftag=algorithmiccomposition.html) 
+- [The Musical Code](https://github.com/lambdamusic/The-Musical-Code) and its counterpart [YouTube channel](https://www.youtube.com/channel/UCanqSICbxzRNEZGMlu8qfyw)
+- [My livecoding blog](https://www.michelepasin.org/words/index.html%3Ftag=algorithmiccomposition&type=all.html)
 - Livecoding community: [TOPLAP](https://toplap.org/about/)
-
 
 ## Changelog
 
