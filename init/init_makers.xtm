@@ -12,6 +12,7 @@
 ;
 ; mkchord
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; wrapper around pc:make-chord-fixed
 ;
 ; Args:
 ; root 
@@ -103,7 +104,7 @@
                     (takel steps (list-split-from (car args) sc))
                     (begin 
                       (log-info "Error: Pitch not in scale. Quantizing..")
-                      (takel steps (list-split-from (:pcquantize (car args) sc) sc)))
+                      (takel steps (list-split-from (mkquant (car args) sc) sc)))
                 )))  
           ;
           (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))              
@@ -149,6 +150,7 @@
 ;
 ; :mkscale
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; wrapper around pc:scale with some defaults
 ;
 ; Args:
 ; root    [default: 60]
@@ -196,12 +198,15 @@
 
 ;
 ;
-; mkrelscale
+; MKSCALESTEP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
+; make a scale from a scale step - 1-based (= tonic)
+; 
 ; Makes a scale and allows passing an pitch value to transpose it
 ; The pitch value is used to get a new note from the pitch class.
-; IE combines mkscale and pc:relative
+; IE Combines mkscale and pc:relative
+;
+; TODO more testing needed
 ;
 ; Args:
 ; root    [eg: 60]
@@ -212,17 +217,19 @@
 ;
 ; Example:
 ; (mkscale 60 'ionian 3)     ;; '(60 62 64)
-; (mkrelscale 60 0 'ionian 3) ;; '(60 62 64)
-; (mkrelscale 60 2 'ionian 3) ;; '(64 66 68) => take 2nd pitch from ionian pitch class, get note and start new scale from that note
+; (mkscalestep 60 0 'ionian 3) ;; '(60 62 64)
+; (mkscalestep 60 2 'ionian 3) ;; '(64 66 68) => take 2nd pitch from ionian pitch class, get note and start new scale from that note
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkrelscale
-  (lambda (root reldegree mode num-notes)
-    (:mkscale (pc:relative root reldegree (pc:scale 0 mode)) mode num-notes)))
-
-
-
-
-
+(define mkscalestep
+  (lambda (root step . args)
+   (if (= step 0 ) (set! step 1))
+   (cond ((length-equal? args 1)
+           ;; 1 arg = just the scale symbol / len default=8
+            (:mkscale (pc:relative root (- step 1)  (pc:scale root (car args))) (car args) 8))
+         ((length-equal? args 2) 
+           ;; 2 arg = scale symbol and len
+           (:mkscale (pc:relative root (- step 1)  (pc:scale root (car args))) (car args) (cadr args)))
+          (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))))) 
 
 
 
@@ -256,72 +263,31 @@
 
 
 
-; https://en.wikipedia.org/wiki/Interval_(music)#Interval_number_and_quality
-(define helper:calc-quality-interval
-  (lambda (root number quality)
-    (cond	((or (= number 0) (= number 1))
-            root) 
-          ((and (= number 2) (equal? quality 'm))
-            (add 1 root)) 
-          ((and (= number 2) (equal? quality 'M))
-            (add 2 root)) 
-          ((and (= number 3) (equal? quality 'm))
-            (add 3 root)) 
-          ((and (= number 3) (equal? quality 'M))
-            (add 4 root)) 
-          ((= number 4) ;; always perfect / ignore quality value
-            (add 5 root)) 
-          ((= number 5) ;; always perfect / ignore quality value
-            (add 7 root)) 
-          ((and (= number 6) (equal? quality 'm))
-            (add 8 root)) 
-          ((and (= number 6) (equal? quality 'M))
-            (add 9 root)) 
-          ((and (= number 7) (equal? quality 'm))
-            (add 10 root)) 
-          ((and (= number 7) (equal? quality 'M))
-            (add 11 root)) 
-          ((= number 8) ;; always perfect / ignore quality value
-            (add 12 root)) 
-          ((and (= number 9) (equal? quality 'm))
-            (add 13 root)) 
-          ((and (= number 9) (equal? quality 'M))
-            (add 14 root)) 
-          ((and (= number 10) (equal? quality 'm))
-            (add 15 root)) 
-          ((and (= number 10) (equal? quality 'M))
-            (add 16 root)) 
-          (else root)) 
-    ))
-
 
 ;
 ; helper for :mkint    
 ; calculate the interval using pc classes
 ; if results is not within the max/min range, then return the range boundaries (quantized for the requested scale!)
-;
+; ; https://en.wikipedia.org/wiki/Interval_(music)#Interval_number_and_quality
 (define helper:mkint-inner
   (lambda (root degree scale_or_quality)
-    (if (member scale_or_quality *interval-quality*)
-        
-        ; QUALITY interval
-        (let ((out (helper:calc-quality-interval root degree scale_or_quality)))    
-          (if (or (> out *maxpitch*) (< out *minpitch*)) 
-              (set! out root))  
-              out)    
-         
-        ; SCALE interval
-        (let ((out (pc:relative root (helper:pc_to_interval degree) (pc:scale 0 scale_or_quality))))  
-          (if (> out *maxpitch*)
-            (set! out (pc:relative *maxpitch* 0 (pc:scale 0 scale_or_quality)))  
-            (if (< out *minpitch*)
-              (set! out  (pc:relative *minpitch* 0 (pc:scale 0 scale_or_quality)))))  
-              out)  
-        )
-    )
-          
-)
 
+    ; QUALITY interval => turn into scale
+    (if (equal? scale_or_quality 'M)
+        (set! scale_or_quality 'ionian))
+    (if (equal? scale_or_quality 'm)
+        (set! scale_or_quality 'aeolian))
+         
+    ; SCALE interval
+    (let ((out (pc:relative root (helper:pc_to_interval degree) (pc:scale 0 scale_or_quality))))  
+      (if (> out *maxpitch*)
+        (set! out (pc:relative *maxpitch* 0 (pc:scale 0 scale_or_quality)))  
+        (if (< out *minpitch*)
+          (set! out  (pc:relative *minpitch* 0 (pc:scale 0 scale_or_quality)))))  
+          out)  
+    )
+)
+          
 
 
 
@@ -459,7 +425,7 @@
 
 ;
 ;
-; mkrel // DEPRECATED? 2022-01-30
+; mkrel // 2022-01-30: DEPRECATED, it's the same as mkint
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Shortcut for pc:relative / returns a single note
@@ -475,44 +441,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define :mkrel
   (lambda (root degree mode)
-        (car (mkrelscale root degree mode 1))))
-
-
-
-; octave, sixth etc..
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Shortcuts for incrementing pitch using intervals
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;
-;
-
-(define-macro (seventhdom plist)
- `(add 10 ,plist))
-(define-macro (seventhmaj plist)
- `(add 11 ,plist))
-(define-macro (sixth plist)
- `(add 9 ,plist))
-(define-macro (fourth plist)
-  `(add 5 ,plist))
-(define-macro (fifth plist)
-   `(add 7 ,plist))
-(define-macro (thirdmaj plist)
-  `(add 4 ,plist))
-(define-macro (thirdmin plist)
-  `(add 3 ,plist))
-
+        (car (mkscalestep root degree mode))))
 
 
 
 ;
 ;
-; :PCRANDOM
+; MKRANDOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Wrapper around standard pc:random 
+;;
 ;; Allows passing a scale symbol, or any list of pitches.
 ;; (original only allows a 0-11 pitch class list)
 ;; 
@@ -523,10 +461,10 @@
 ; It defauls to C as root. So all scales are C scales.
 ; 
 ;; Examples
-; (:pcrandom 60 70 'M) ; => 60
-; (:pcrandom 60 70 (:mkscale 61 'M)) ; => 61
+; (mkrandom 60 70 'M) ; => 60
+; (mkrandom 60 70 (:mkscale 61 'M)) ; => 61
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :pcrandom
+(define mkrandom
     (lambda (lower upper pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
@@ -541,10 +479,10 @@
 
 ;
 ;
-; :PCQUANTIZE
+; :MKQUANT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Wrapper around standard pc:quantize
+;;
 ;; Allows passing a scale symbol, or any list of pitches.
 ;; (original only allows a 0-11 pitch class list) 
 ;;
@@ -555,14 +493,14 @@
 ; It defauls to C as root. So all scales are C scales.
 ; 
 ;; Examples
-; (:pcquantize 60 'M) ; => 60
-; (:pcquantize 60 (:mkscale d0 'M)) ; => 61 / the 7th degree in dM
+; (mkquant 60 'M) ; => 60
+; (mkquant 60 (:mkscale d0 'M)) ; => 61 / the 7th degree in dM
 ;
 ; NOTE pc:quantize always selects a higher value before a lower value where distance is equal.
 ; https://extempore.michelepasin.org/def/pc-quantize.html
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :pcquantize
+(define mkquant
     (lambda (pitch-in pitch-list-or-sym)
       (let ((scale pitch-list-or-sym))
         (if	(atom? scale)
@@ -604,7 +542,7 @@
 ; Move a pitch to a different octave range, within with min/max boundaries.
 ;
 ;; arg1: pitch or pitch-list
-;; arg2: min boundary 
+;; arg2: min boundary (if not provided, 1)
 ;; arg3: max boundary (if not provided, min +1)
 ;
 ;;  Octave 1 = c0 = 12  // 1st octave starts
@@ -653,4 +591,31 @@
     )          
 )   
 
+
+
+
+; fifth, sixth etc..
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Shortcuts for incrementing pitch using intervals
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;
+;
+
+(define-macro (seventhdom plist)
+ `(add 10 ,plist))
+(define-macro (seventhmaj plist)
+ `(add 11 ,plist))
+(define-macro (sixth plist)
+ `(add 9 ,plist))
+(define-macro (fourth plist)
+  `(add 5 ,plist))
+(define-macro (fifth plist)
+   `(add 7 ,plist))
+(define-macro (thirdmaj plist)
+  `(add 4 ,plist))
+(define-macro (thirdmin plist)
+  `(add 3 ,plist))
 
