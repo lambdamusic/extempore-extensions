@@ -116,6 +116,57 @@
 
 
 
+(define *diatonic_degrees*  (list 'i 'ii 'iii 'iv 'v 'vi 'vii ))
+(define *diatonic_modes*  (list 'M 'm '^ '- ))
+
+; replace non first 0s into 12
+; facilitates turning a diatoninc pclass into a pitches list
+(define helper:handle_zeros
+    (lambda (l)
+        (let ((a (car l)) (b (cadr l)) (c (caddr l)))
+            (if< b a (set! b (+ 12 b)))
+            (if< c b (set! c (+ 12 c)))
+            (list a b c)                
+        )))
+
+
+; 
+; MKCHORDIATONIC // 1-based (= tonic)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Returns a diatonic chord based on a major or minor scale. 
+; Wrapper around pc:diatonic, which returns a chord as a list of pitch classes, hence it can't be played right away. 
+;
+; Args:
+; root 
+; mode (major or minor)
+; degree (either as symbols, or via an integer)
+;
+; NOTE: integer degrees permit to go above 8 
+;
+; Examples:
+; (mkchordiatonic 60 '^ 'iii) ;; (64 67 71)
+; (mkchordiatonic 60 '^ 3) ;; (64 67 71)
+; (mkchordiatonic 60 '^ 1) ;; (60 64 67)
+; (mkchordiatonic 60 'M 8) ;; (72 76 79)
+;
+(define mkchordiatonic
+  (lambda (root mode degree)
+    (if (not (member mode *diatonic_modes*))
+        (println 'Error: 'modes 'allowed: *diatonic_modes*)
+        (begin 
+            (if= mode 'M (set! mode '^))
+            (if= mode 'm (set! mode '-))
+            
+            (cond ((member degree *diatonic_degrees*) ; use standard pcdiatonic
+                    (add root (helper:handle_zeros (pc:diatonic root mode degree))))
+                ((t:number? degree) ; use mkint
+                    (map (lambda (x)
+                        (mkint x degree mode ) )
+                        (mkchord root mode 3)))
+                (else (println 'Error: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
+
+
+
 
 
 

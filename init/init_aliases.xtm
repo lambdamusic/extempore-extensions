@@ -5,6 +5,7 @@
 
 
 (define ran random)
+(define oct octave)
 
 
 ;; legacy implementation mappings
@@ -59,16 +60,22 @@
 (define mklist :mklist)
 (define mkchord :mkchord)
 (define mkchordrandom :mkchordrandom )
+(define mkchordrand :mkchordrandom )
 (define mkchordbystep :mkchordbystep )
-(define mkrelscale :mkrelscale )
+(define mkchordsteps :mkchordbystep )
+(define mkrelscale mkscalestep )
 (define mkscale :mkscale)
 (define mkrel :mkrel )
 (define mkint :mkint )
 (define mkmelody :mkmelody )
-(define pc:quant :pcquantize)
-(define pcquantize :pcquantize)
-(define pc:ran :pcrandom)
-(define pcrandom :pcrandom)
+(define pc:quant mkquant)
+(define :pcquantize mkquant)
+(define pcquantize mkquant)
+(define pc:ran mkrandom)
+(define pcrandom mkrandom)
+(define :pcrandom mkrandom)
+(define mkrand mkrandom)
+
 
 ;; old name for legacy compatibility
 (impc:aot:do-or-emit

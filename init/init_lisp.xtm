@@ -668,6 +668,13 @@
         ,@elseargs))
 
 ;;
+; (if!= 2 3 (print 'ciao) (print 'baby))
+(define-macro (if!= x y args . elseargs)
+   `(if (not (equal? ,x ,y))
+        ,args 
+        ,@elseargs))
+
+;;
 ; (if< 2 3 (print 'ciao) (print 'baby))
 (define-macro (if< x y args . elseargs)
    `(if (< ,x ,y)
