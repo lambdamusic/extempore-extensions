@@ -398,6 +398,35 @@
 
 
 
+;
+;
+; mkrel // 2022-01-30: DEPRECATED, it's the same as mkint
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Shortcut for pc:relative / returns a single note
+;
+; NOTE `mkint` and `mkrel`  have a different implementaion but they produce the same result. Test:
+;
+; ```
+; (let* ((beat (*metro* 'get-beat))  (x (cosr 3 2 1/4)))
+;     (monitor (mkint A3 x 'm ))
+;     (monitor (mkrel A3 x 'm ))
+;         )
+; ```
+; Args:
+; root    [eg: 60]
+; reldegree    [eg: int, positive or negative]
+; mode    [eg: 'ionian]
+;
+;
+; Example:
+; (mkrel 60 0 'pentatonic) ;; 60
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define :mkrel
+  (lambda (root degree mode)
+        (car (mkscalestep root degree mode))))
+
+
 
 
 
@@ -473,26 +502,6 @@
 
 
 
-
-;
-;
-; mkrel // 2022-01-30: DEPRECATED, it's the same as mkint
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; Shortcut for pc:relative / returns a single note
-;
-; Args:
-; root    [eg: 60]
-; reldegree    [eg: int, positive or negative]
-; mode    [eg: 'ionian]
-;
-;
-; Example:
-; (mkrel 60 0 'pentatonic) ;; 60
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkrel
-  (lambda (root degree mode)
-        (car (mkscalestep root degree mode))))
 
 
 
