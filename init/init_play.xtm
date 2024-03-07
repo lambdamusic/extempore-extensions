@@ -7,13 +7,13 @@
 ; Overriding the standard extempore `play/mplay` implementation.  
 ;
 ; The main changes are:
-;
 ;; 1) The MIDI OUT instrument is implicit and defaults to the symbol *mididevice*, which needs to be predefined
 ;; 2) Channel is 0-based in xtm, but here it is 1-based
 ;; 3) The standard 'play' function is always MIDI (overrides Extempore 'play')
+;; 4) Sensible defaults for MIDI signals 0-127 
 ;
 ; Note 
-;; It is possible to work with more than one MIDI OUT  instrument
+;; It is possible to work with more than one MIDI OUT instrument
 ;; Simply add a (let ((*mididevice* instrument)) statement so to have local scoping of that variable
 ;
 ;
@@ -34,8 +34,29 @@
 (define *play-midi-default-dur-factor* 0.9)
 
 
+;; boundaries for midi signals
+(define *pitch-vel-lower-limit* 0)
+(define *pitch-vel-upper-limit* 127)
 
 
+
+; HELPER:MIDI-VAL
+;;;;;;;
+;; ensure midi values are within range and integers
+;;
+;; >>> Be cautious however about the range of MIDI notes that goes from 0 to 127. By adding for instance 4 octaves (+48) to a note of value 96, the total is 144, which is outside the range and may be truncated to 16 (144 - 128) so that a very low note will result.
+;; Taken from https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
+;;
+;;
+(define helper:midi-val
+  (lambda (p)
+    (let ((g (real->integer p)))
+      ; (monitor p '=> g) ; QA
+      (if (> g *pitch-vel-upper-limit* ) 
+          (begin (print-warn "MIDI value above" *pitch-vel-upper-limit*) *pitch-vel-upper-limit*)
+          (if (< g *pitch-vel-lower-limit* )
+              (begin (print-warn "MIDI value below" *pitch-vel-lower-limit*)*pitch-vel-lower-limit*)
+              g)))))
 
 
 
@@ -81,8 +102,8 @@
           (when #f (monitor  volumes durs))
           (for-each (lambda (o p v d)
                       (play-midi-note (*metro* (+ beat o)) *mididevice*
-                                        (real->integer (eval p))
-                                        (real->integer (eval v))
+                                        (helper:midi-val (eval p))
+                                        (helper:midi-val (eval v))
                                         (*metro* 'dur (* *play-midi-default-dur-factor* d)) 
                                         ;; NOTE ch is 0based in xtm, but user sends it as 1-based
                                         (- ch 1)
@@ -156,8 +177,8 @@
                   ;; single-note: send midi message          
                   (play-midi-note (*metro* beat) 
                                 *mididevice*
-                                (real->integer (eval ,(cadr args))) ;; pitch
-                                (real->integer (eval ,(caddr args))) ;; vol
+                                (helper:midi-val (eval ,(cadr args))) ;; pitch
+                                (helper:midi-val (eval ,(caddr args))) ;; vol
                                 (*metro* 'dur 
                                   (* *play-midi-default-dur-factor* ,(cadddr args)) 
                                 ) ;; dur
@@ -180,8 +201,8 @@
                   ;; single-note: send midi message
                   (play-midi-note (*metro* (+ beat ,(car args)))         
                                   *mididevice*
-                                  (real->integer (eval ,(caddr args)))
-                                  (real->integer  (eval ,(cadddr args)))
+                                  (helper:midi-val(eval ,(caddr args)))
+                                  (helper:midi-val  (eval ,(cadddr args)))
                                   (*metro* 'dur 
                                     (* *play-midi-default-dur-factor* 
                                       ,(cadr (cdddr args))))   
@@ -314,15 +335,15 @@
                     ; no offset
                     `(play-midi-note (*metro* beat) 
                                     *mididevice*
-                                    (real->integer (eval ,(car args)))
-                                    (real->integer (eval ,(cadr args)))
+                                    (helper:midi-val (eval ,(car args)))
+                                    (helper:midi-val (eval ,(cadr args)))
                                     (*metro* 'dur 1/16) ;; dur 1/8
                                     8) ;; midi always 8 == 9 in LIVE
                     ; 3 args, = it's an offset
                     `(play-midi-note (*metro* (+ beat ,(car args)))                
                                     *mididevice*
-                                    (real->integer (eval ,(cadr args)))
-                                    (real->integer  (eval ,(car (cddr args))))
+                                    (helper:midi-val (eval ,(cadr args)))
+                                    (helper:midi-val  (eval ,(car (cddr args))))
                                     (*metro* 'dur 1/16)
                                     8)))
 )
