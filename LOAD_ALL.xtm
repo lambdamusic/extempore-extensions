@@ -110,3 +110,29 @@
 (log-info '* 'READY 'TO 'ROCK! '*)
 (log-info '**************)
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; TEST PLAY NOTES
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(let ((beat (*metro* 'get-beat))
+      (dur 1/8)
+      (piano 1))
+  (play piano G3 90 2 )
+  (play 1/2 piano c2 90 2 ) ; offset
+  (play piano (list c3 c4) 90 2 )
+  (play piano (:mkmelody 2 60 'dorian '(1 -1 2 -2))
+        90 2 )
+  (playarp piano (:mkmelody 4 60 'dorian '(1 -1 2 -2))
+           90 1 )
+  (playp piano 2 '(g2 g5 g2 g5) 90 )
+  (playk x11 90)
+  (playk 1/2 x11 90)
+  (playkr x11 4 1)
+  (playkp 1 (list x11) 90)
+)
+(log-info '**************)
+(log-info '* "PLAY NOTE TESTS => OK" '*)
+(log-info '**************)
