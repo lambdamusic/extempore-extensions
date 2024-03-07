@@ -160,7 +160,6 @@
         ))
 
 
-
 ;;
 ;; The :mix inner function actually calling the CC change events.
 ;;
@@ -179,6 +178,8 @@
                 (if *debug*
                     (log-info 'received: ch increment min-limit max-limit oldval)
                     )
+                (if (> ch 8)
+                    (log-warn 'WARNING 'ch: ch 'invalid))
                 ;
                 (if (not (integer? min-limit)) 
                     (begin 
@@ -232,14 +233,15 @@
 ; Args:
 ; -----
 ; Takes variable num of args, but for 4:  
-; ch: the CC channel (1-10 for volumes)
+; track: the Ableton Track number (1-8, 10 for master)
 ; action: +/- for increment/decrement 
 ; value: [INTEGER or FLOAT 0-127] the fader value number
 ; boundary: the min or max value where to stop
 ;
 ; Notes:
 ; ------
-; CHANNEL 10 => the MASTER vol in ABLETON
+; TRACK 1-8 only allowed 
+; TRACK 10 => the MASTER vol in ABLETON
 ; Values are set in real-time using now() // [not beat]
 ; IMPORTANT: communication is one-way only XTM=>DAW (not back-synced from DAW)
 ;
