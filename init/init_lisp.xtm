@@ -605,9 +605,6 @@
 (define-macro (cl:sort-desc l)
    `(cl:sort ,l >))
 
-(define sorta cl:sort-asc)
-
-(define sortd cl:sort-desc)
 
 
 ;

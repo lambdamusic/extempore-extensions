@@ -14,9 +14,11 @@
 (define kit playk)
 
 
-(define sortasc sorta)
-(define sortdesc sortd)
 
+(define sorta cl:sort-asc)
+(define sortd cl:sort-desc)
+(define sortasc cl:sort-asc)
+(define sortdesc cl:sort-desc)
 
 (define cdr-or-else if-cdr-else)
 
