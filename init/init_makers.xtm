@@ -13,23 +13,30 @@
 ; mkchord
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wrapper around pc:make-chord-fixed
+; 2024-03-30: support pitch list too
 ;
 ; Args:
 ; root 
-; chord-sym [default: '^]
+; chord-sym-or-pitch-list [default: '^]
 ; notes_number [default: 3]
 ;
 ; Example:
+; (println (mkchord 60 'M))
 ; (println (mkchord 60 '- 8))
+; (println (mkchord 60 '(0 4 6)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-macro (:mkchord . args)
+(define-macro (mkchord . args)
   ;;(println args)
    (cond ((length-equal? args 1) ;; just root 
          `(pc:make-chord-fixed ,(car args) 3 (pc:chord ,(car args) '^)))
-         ((length-equal? args 2) ; root and chord-sym
-         `(pc:make-chord-fixed ,(car args) 3 (pc:chord ,(car args) ,(cadr args))))
+         ((length-equal? args 2) ; root and chord-sym-or-pitch-list
+         `(if	(atom? ,(cadr args)) ; => check chord-sym or pitch list
+              (pc:make-chord-fixed ,(car args) 3 (pc:chord ,(car args) ,(cadr args)))
+              (pc:make-chord-fixed ,(car args) 3 ,(cadr args))))
          ((length-equal? args 3) ;; also notes_number
-         `(pc:make-chord-fixed ,(car args) ,(caddr args) (pc:chord ,(car args) ,(cadr args))))         
+         `(if	(atom? ,(cadr args)) 
+              (pc:make-chord-fixed ,(car args) ,(caddr args) (pc:chord ,(car args) ,(cadr args)))
+              (pc:make-chord-fixed ,(car args) ,(caddr args) ,(cadr args))))
          (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))))
 
 
@@ -41,6 +48,7 @@
 ; :mkchordrandom
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wrapper around non-deterministic pc:make-chord (updated on 2020-10-04)
+; 2024-03-30: support pitch list too
 ;
 ; Args:
 ; root 
@@ -49,18 +57,29 @@
 ; upper_limit [default: 120]
 ;
 ; Example:
-; (println (mkchordrandom 60 '- 3 120))
+; (mkchordrandom C3 'm )
+; (mkchordrandom C3 'm 5)
+; (mkchordrandom C3 'm 5 110)
+; (mkchordrandom C3 '(0 3 5))
+; (mkchordrandom C3 '(0 3 5) 5)
+; (mkchordrandom C3 '(0 3 5) 5 110)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-macro (:mkchordrandom . args)
+(define-macro (mkchordrandom . args)
   ;;(println args)
    (cond ((length-equal? args 1) ;; just root 
          `(pc:make-chord ,(car args) 120 3 (pc:chord ,(car args) '^)))
-         ((length-equal? args 2) ; root and chord-sym
-         `(pc:make-chord ,(car args) 120 3 (pc:chord ,(car args) ,(cadr args))))
+         ((length-equal? args 2) ; root and chord-sym/pitchlist
+         `(if	(atom? ,(cadr args)) ; => check chord-sym or pitch list
+              (pc:make-chord ,(car args) 120 3 (pc:chord ,(car args) ,(cadr args)))
+              (pc:make-chord ,(car args) 120 3 ,(cadr args))))
          ((length-equal? args 3) ;; also notes_number
-         `(pc:make-chord ,(car args) 120 ,(caddr args) (pc:chord ,(car args) ,(cadr args))))  
+         `(if	(atom? ,(cadr args)) ; => check chord-sym or pitch list
+              (pc:make-chord ,(car args) 120 ,(caddr args) (pc:chord ,(car args) ,(cadr args)))  
+              (pc:make-chord ,(car args) 120 ,(caddr args) ,(cadr args))))
          ((length-equal? args 4) ;; also upper-limit
-         `(pc:make-chord ,(car args) ,(cadddr args) ,(caddr args) (pc:chord ,(car args) ,(cadr args))))         
+          `(if	(atom? ,(cadr args)) ; => check chord-sym or pitch list
+              (pc:make-chord ,(car args) ,(cadddr args) ,(caddr args) (pc:chord ,(car args) ,(cadr args)))         
+              (pc:make-chord ,(car args) ,(cadddr args) ,(caddr args) ,(cadr args))))         
          (else (print 'Error: 'arguments 'could 'not 'be 'resolved.))))
 
 
@@ -81,15 +100,15 @@
 ; When a relative pitch is passed, the steps calculation begins from that pitch (if it exists in the scale)
 ;
 ; Examples:
-; (:mkchordbystep c4 '(1 3) 'M  ) ; => (60 64)
-; (:mkchordbystep 60 '(1 3 7) 'ionian  ) ; => (60 64 71)
-; (:mkchordbystep 60 '(1 3 7) 'ionian 62) ; => (62 65 72)  / start from D, in C Major
-; (:mkchordbystep 60 '(1 3 7) 'ionian 73) ; => (74 77 84)  / quantize 73 to 74 cause it's not in scale
+; (mkchordbystep c4 '(1 3) 'M  ) ; => (60 64)
+; (mkchordbystep 60 '(1 3 7) 'ionian  ) ; => (60 64 71)
+; (mkchordbystep 60 '(1 3 7) 'ionian 62) ; => (62 65 72)  / start from D, in C Major
+; (mkchordbystep 60 '(1 3 7) 'ionian 73) ; => (74 77 84)  / quantize 73 to 74 cause it's not in scale
 ;
 ; See also
 ; (pc:melody-by-step 60 '(0 2) '(0 4 7)) ;=>'(60 60 67) 
 ;
-(define :mkchordbystep
+(define mkchordbystep
   (lambda (seed steps scale . args)
   ; (println args)
    (cond ((null? args) ;; default
@@ -119,9 +138,16 @@
 (define *diatonic_degrees*  (list 'i 'ii 'iii 'iv 'v 'vi 'vii ))
 (define *diatonic_modes*  (list 'M 'm '^ '- ))
 
-; replace non first 0s into 12
-; facilitates turning a diatoninc pclass into a pitches list
-(define helper:handle_zeros
+; helper:diatonic-chord-ascending 
+; --------------------------------
+; Ensures that a diatonic chord pitch class list has ascending pitches
+; So to facilitate turning a diatonic pclass into a chord
+; eg '(7 11 2) => (7 11 14)
+; eg '(7 11 0) => (7 11 12)
+; IE replace non first 0s into 12
+; TODO currenlty handles 3-elements lists only, as returned by pc:diatonic
+; 2024-04-01: not needed any longer. Was used in prev version of MKCHORDIATONIC
+(define helper:diatonic-chord-ascending
     (lambda (l)
         (let ((a (car l)) (b (cadr l)) (c (caddr l)))
             (if< b a (set! b (+ 12 b)))
@@ -131,44 +157,90 @@
 
 
 ; 
-; MKCHORDIATONIC // 1-based (= tonic)
+; MKCHORDIATONIC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Returns a diatonic chord based on a major or minor scale. 
-; Wrapper around pc:diatonic, which returns a chord as a list of pitch classes, hence it can't be played right away. 
+; Wrapper around pc:diatonic+pc:make-chord-fixed, to be able to get a playable chord right away.
+; Note: pc:diatonic returns a chord as a list of pitch classes, hence it can't be played
 ;
 ; Args:
 ; root 
 ; mode (major or minor)
-; degree (either as symbols, or via an integer)
+; degree (either as symbols, or via an integer 1=tonic)
+; OPT: notes_number [default: 3]
 ;
-; NOTE: integer degrees permit to go above 8 
+; NOTE: always using integer degrees, that permit to go above 8 
+; prev version: 
+; (add root (helper:handle_zeros (pc:diatonic root mode degree))))
 ;
 ; Examples:
-; (mkchordiatonic 60 '^ 'iii) ;; (64 67 71)
-; (mkchordiatonic 60 '^ 3) ;; (64 67 71)
-; (mkchordiatonic 60 '^ 1) ;; (60 64 67)
-; (mkchordiatonic 60 'M 8) ;; (72 76 79)
+; (mkchordia 60 '^ 'iii) ;; (64 67 71)
+; (mkchordia 60 '^ 3) ;; (64 67 71)
+; (mkchordia 60 '^ 1) ;; (60 64 67)
+; (mkchordia 60 'M 8) ;; (72 76 79)
+; (mkchordia 60 'M 8 4) ;; (72 76 79 84)
+; (mkchordia 60 'M 8 6) ;; (72 76 79 84 88 91)
 ;
-(define mkchordiatonic
-  (lambda (root mode degree)
+(define mkchordia
+  (lambda (root mode degree . args)
+    (let ((numnotes 3))
     (if (not (member mode *diatonic_modes*))
         (println 'Error: 'modes 'allowed: *diatonic_modes*)
         (begin 
             (if= mode 'M (set! mode '^))
             (if= mode 'm (set! mode '-))
-            
-            (cond ((member degree *diatonic_degrees*) ; use standard pcdiatonic
-                    (add root (helper:handle_zeros (pc:diatonic root mode degree))))
-                ((t:number? degree) ; use mkint
+            (if (length-equal? args 1) (set! numnotes (car args)))
+            (if (member degree *diatonic_degrees*) ; always use integers
+                (set! degree (get-list-index *diatonic_degrees* degree)))
+            (if (t:number? degree)
+                  (map (lambda (x)
+                      (mkint x degree mode ) )
+                      (mkchord root mode numnotes))
+                  (log-error 'mkchordia: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
+
+
+
+
+
+; 
+; MKCHORDIATONIC-RANDOM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Returns a diatonic chord based on a major or minor scale, using a random chord generator.
+; Wrapper around pc:diatonic+pc:make-chord.
+;
+; Args:
+; root 
+; mode (major or minor)
+; degree (either as symbols, or via an integer 1=tonic)
+; OPT: notes_number [default: 3]
+; OPT: upper_limit [default: 120]
+;
+; NOTE: integer degrees permit to go above 8 
+;
+; Examples:
+; (mkchordiarandom 35 '- 'v ) ;; last two args, optional
+; (mkchordiarandom 35 '- 5 ) ;; last two args, optional
+; (mkchordiarandom 35 '- 5 4 ) ;; 4 notes
+; (mkchordiarandom 35 '- 5 4 100) ;; 4 notes, 100 upper boundary
+;
+(define mkchordiarandom
+  (lambda (root mode degree . args)
+    (let ((numnotes 3) (upperlimit 120))
+      (if (not (member mode *diatonic_modes*))
+          (println 'Error: 'modes 'allowed: *diatonic_modes*)
+          (begin 
+              (if= mode 'M (set! mode '^))
+              (if= mode 'm (set! mode '-))
+              (if (length-equal? args 1) (set! numnotes (car args)))
+              (if (length-equal? args 2) 
+                  (begin (set! numnotes (car args)) (set! upperlimit (cadr args))))
+              (if (member degree *diatonic_degrees*) ; always use integers
+                  (set! degree (get-list-index *diatonic_degrees* degree)))
+              (if (t:number? degree) 
                     (map (lambda (x)
-                        (mkint x degree mode ) )
-                        (mkchord root mode 3)))
-                (else (println 'Error: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
-
-
-
-
-
+                          (mkint x degree mode ))
+                      (mkchordr root mode numnotes upperlimit))
+                    (log-error 'mkchordia: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
 
 
 
@@ -678,4 +750,19 @@
   `(add 4 ,plist))
 (define-macro (thirdmin plist)
   `(add 3 ,plist))
+
+
+
+
+
+
+;; PC-FROM-CHORD 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Little helper that shows the pitch class from a plist (chord)
+; useful for sanity-checking automatically generated chords
+;;
+(define pc-from-chord
+  (lambda (chord)
+    (map (lambda (x) (pc:pc x)) chord)
+    ))
 

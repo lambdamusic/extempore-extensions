@@ -60,12 +60,20 @@
 
 
 (define mklist :mklist)
-(define mkchord :mkchord)
-(define mkchordrandom :mkchordrandom )
-(define mkchordrand :mkchordrandom )
-(define mkchordbystep :mkchordbystep )
-(define mkchordsteps :mkchordbystep )
+(define :mkchord mkchord)
+(define :mkchordrandom mkchordrandom )
+(define mkchordr mkchordrandom )
+(define mkchord-random mkchordrandom )
+(define mkchord_r mkchordrandom )
+(define :mkchordbystep mkchordbystep )
+(define :mkchordsteps mkchordbystep )
 (define mkrelscale mkscalestep )
+(define mkchordiatonic mkchordia )
+(define mkchordiar mkchordiarandom )
+(define mkchordiatonicr mkchordiarandom )
+(define mkchordia_r mkchordiarandom )
+(define mkchordiatonic-random mkchordiarandom )
+(define mkchordia-random mkchordiarandom )
 (define mkscale :mkscale)
 (define mkrel :mkrel )
 (define mkint :mkint )
@@ -117,7 +125,7 @@
 ; (let ((beat (*metro* 'get-beat)))
 ;   (arp piano '(60 67) 4 90) 
 ;   (arp 2 piano '(60 67) 4 90)  ;; 2 = offset
-;   (arp piano (:mkchord c4 '^ 4) (:mklist 4 (oneof 1 2 3)) 90)
+;   (arp piano (mkchord c4 '^ 4) (:mklist 4 (oneof 1 2 3)) 90)
 ; )
 ;
 ;

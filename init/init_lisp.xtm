@@ -929,3 +929,34 @@
          self)))
 
 
+
+
+
+; GET-LIST-INDEX
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Returns index of element in list
+; https://stackoverflow.com/questions/13562200/find-the-index-of-element-in-list
+; note: I implemented a wrapper to return 1-based indices
+;
+; Example:
+; --------
+; (get-list-index (list 'a 'b 'c) 'b) ;; => 2
+; (get-list-index (list 'a 'b 'c) 'e) ;; => -1
+; (get-list-index *diatonic_degrees* 'v) ;; => 5
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (get-list-index l el)
+   (let ((res (get-list-index-inner l el)))
+      (if (>= res 0) 
+          (+ res 1) 
+          res)))
+(define (get-list-index-inner l el)
+    (if (null? l)
+        -1
+        (if (equal? (car l) el)
+            0
+            (let ((result (get-list-index-inner (cdr l) el)))
+                (if (= result -1)
+                    -1
+                    (1+ result))))))
+

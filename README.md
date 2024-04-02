@@ -12,12 +12,17 @@ NOTE: The extensions have been developed to support **MIDI** composition / livec
 
 Files 
 
-* `init_midi` helpers for playing midi instruments
 * `init_beats` metro+beat utils
-* `init_music` utils to generate chord structures
-* `init_steps` midi step sequencer 
+* `init_bento` bento plugin utils
+* `init_lisp` lisp and scheme utils 
+* `init_makes` utils to generate chord structures
+* `init_midi` helpers for playing midi instruments
+* `init_mixer` utils to work with Ableton Live mixer
+* `init_play` play midi functions
+* `init_playp` play patterns midi functions
 * `init_symbols` notes symbols 
-* `init_utils` lisp and scheme utils 
+* `init_tempo` utils for tempo manipulation 
+
 
 ## How to Use
 
@@ -27,7 +32,7 @@ After cloning the repo, there are a couple of settings at the top of [LOAD_ALL.x
 
 ```scheme
 (define *extensions-path* 
-  "/Users/michele.pasin/Dropbox/code/extempore/src/xtm-extensions/init/")
+  "/your/path/to/xtm-extensions/init/")
 
 (define *DEFAULT_MIDI_DEVICE_NAME* 
   "IAC Driver Extempore Bus")
