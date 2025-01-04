@@ -51,7 +51,7 @@
 ;;
 ;; Args:
 ; --------
-; - control change 
+; - control change channel
 ; - value
 ; - ch midi [optional - default is *mcc-default-channel*]
 ;

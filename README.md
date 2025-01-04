@@ -66,7 +66,7 @@ alias xtm-plus="cd $EXTEMPORE_RUNTIME;./extempore --frames 256 --run '$EXTEMPORE
 
 ## VSCode resources
 
-The [backups](backups/) folder contains snippets and keybindings files for VSCode, as well as other potentially reusable bits and pieces. 
+The [backups](https://github.com/lambdamusic/The-Musical-Code/tree/main/backups) folder (in the TMC repo) contains snippets and keybindings files for VSCode, as well as other potentially reusable bits and pieces. 
 
 
 ## See also

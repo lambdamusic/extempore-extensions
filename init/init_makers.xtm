@@ -10,7 +10,7 @@
 
 ;
 ;
-; mkchord
+; MKCHORD
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wrapper around pc:make-chord-fixed
 ; 2024-03-30: support pitch list too
@@ -45,7 +45,7 @@
 
 ;
 ;
-; :mkchordrandom
+; MKCHORDRANDOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wrapper around non-deterministic pc:make-chord (updated on 2020-10-04)
 ; 2024-03-30: support pitch list too
@@ -92,7 +92,7 @@
 
 
 ; 
-; :MKCHORDBYSTEP // 1-based (= tonic)
+; MKCHORDBYSTEP // 1-based (= tonic)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Returns a chord based on steps of a scale. Eg (:mkchordbystep 60 '(1 3 5) 'ionian  ) ; => tonic chord ie (60 64 67)
 ; Optional args are: relative pitch (default: none) 
@@ -157,7 +157,7 @@
 
 
 ; 
-; MKCHORDIATONIC
+; MKDIACHORD
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Returns a diatonic chord based on a major or minor scale. 
 ; Wrapper around pc:diatonic+pc:make-chord-fixed, to be able to get a playable chord right away.
@@ -174,14 +174,14 @@
 ; (add root (helper:handle_zeros (pc:diatonic root mode degree))))
 ;
 ; Examples:
-; (mkchordia 60 '^ 'iii) ;; (64 67 71)
-; (mkchordia 60 '^ 3) ;; (64 67 71)
-; (mkchordia 60 '^ 1) ;; (60 64 67)
-; (mkchordia 60 'M 8) ;; (72 76 79)
-; (mkchordia 60 'M 8 4) ;; (72 76 79 84)
-; (mkchordia 60 'M 8 6) ;; (72 76 79 84 88 91)
+; (mkdiachord 60 '^ 'iii) ;; (64 67 71)
+; (mkdiachord 60 '^ 3) ;; (64 67 71)
+; (mkdiachord 60 '^ 1) ;; (60 64 67)
+; (mkdiachord 60 'M 8) ;; (72 76 79)
+; (mkdiachord 60 'M 8 4) ;; (72 76 79 84)
+; (mkdiachord 60 'M 8 6) ;; (72 76 79 84 88 91)
 ;
-(define mkchordia
+(define mkdiachord
   (lambda (root mode degree . args)
     (let ((numnotes 3))
     (if (not (member mode *diatonic_modes*))
@@ -196,14 +196,14 @@
                   (map (lambda (x)
                       (mkint x degree mode ) )
                       (mkchord root mode numnotes))
-                  (log-error 'mkchordia: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
+                  (log-error 'mkdiachord: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
 
 
 
 
 
 ; 
-; MKCHORDIATONIC-RANDOM
+; MKDIACHORDRANDOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Returns a diatonic chord based on a major or minor scale, using a random chord generator.
 ; Wrapper around pc:diatonic+pc:make-chord.
@@ -218,12 +218,12 @@
 ; NOTE: integer degrees permit to go above 8 
 ;
 ; Examples:
-; (mkchordiarandom 35 '- 'v ) ;; last two args, optional
-; (mkchordiarandom 35 '- 5 ) ;; last two args, optional
-; (mkchordiarandom 35 '- 5 4 ) ;; 4 notes
-; (mkchordiarandom 35 '- 5 4 100) ;; 4 notes, 100 upper boundary
+; (mkdiachordrandom 35 '- 'v ) ;; last two args, optional
+; (mkdiachordrandom 35 '- 5 ) ;; last two args, optional
+; (mkdiachordrandom 35 '- 5 4 ) ;; 4 notes
+; (mkdiachordrandom 35 '- 5 4 100) ;; 4 notes, 100 upper boundary
 ;
-(define mkchordiarandom
+(define mkdiachordrandom
   (lambda (root mode degree . args)
     (let ((numnotes 3) (upperlimit 120))
       (if (not (member mode *diatonic_modes*))
@@ -240,7 +240,7 @@
                     (map (lambda (x)
                           (mkint x degree mode ))
                       (mkchordr root mode numnotes upperlimit))
-                    (log-error 'mkchordia: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
+                    (log-error 'mkdiachordrandom: 'degree 'allowed: *diatonic_degrees* 'or 'integers)))))))
 
 
 
@@ -271,7 +271,7 @@
 
 ;
 ;
-; :mkscale
+; MKSCALE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; wrapper around pc:scale with some defaults
 ;
@@ -283,13 +283,13 @@
 ;
 ;
 ; Example:
-; (:mkscale 60) ;=> 7 notes, ionian
-; (:mkscale 60 'aeolian) ;=> 7 notes, aeolian
-; (:mkscale 60 'm) ;=> 7 notes, aeolian
-; (:mkscale 60 'aeolian 5) ;=> 5 notes
-; (:mkscale 60 'aeolian 0 3) ;=> 3 octaves (notes arg is ignored)
+; (mkscale 60) ;=> 7 notes, ionian
+; (mkscale 60 'aeolian) ;=> 7 notes, aeolian
+; (mkscale 60 'm) ;=> 7 notes, aeolian
+; (mkscale 60 'aeolian 5) ;=> 5 notes
+; (mkscale 60 'aeolian 0 3) ;=> 3 octaves (notes arg is ignored)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkscale
+(define mkscale
   (lambda (root . args)
   ; (println args)
    (cond ((null? args) ;; default
@@ -416,7 +416,7 @@
 
 ;
 ;
-; :mkint
+; MKINT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Returns a new pitch at the desired interval 
 ; To determine the interval quality, accepts either a scale/mode (defaults major/ionian) or a M/m symbol.  
@@ -436,24 +436,24 @@
 ;; intervallo di 8 = ottava (VS 7 in pc steps)
 ;
 ; ===Examples with Scales===
-; (:mkint 60 0) => 60  (default scale: ionian)
-; (:mkint 60 1) => 60
-; (:mkint 60 2) => 62
-; (:mkint 60 -1) => 60
-; (:mkint 60 -2) => 59
-; (:mkint 60 3) => 64
-; (:mkint 60 3 'aeolian) => 63
-; (:mkint 61 2) => 62 / major second in c (with quantization) 
-; (:mkint 110 20) => 110  ;; maxlimit kicks in
-; (:mkint 30 -40) => 10   ;; minlimit kicks in
+; (mkint 60 0) => 60  (default scale: ionian)
+; (mkint 60 1) => 60
+; (mkint 60 2) => 62
+; (mkint 60 -1) => 60
+; (mkint 60 -2) => 59
+; (mkint 60 3) => 64
+; (mkint 60 3 'aeolian) => 63
+; (mkint 61 2) => 62 / major second in c (with quantization) 
+; (mkint 110 20) => 110  ;; maxlimit kicks in
+; (mkint 30 -40) => 10   ;; minlimit kicks in
 ;
 ;
 ; ===Examples with Qualities eg M/m===
-; (:mkint 60 2 'M)  => 62
-; (:mkint 60 3 'm)  => 63
-; (:mkint 102 5 'M)  => 109
-; (:mkint 105 5 'M)  => 105 ;; maxlimit kicks in
-(define :mkint
+; (mkint 60 2 'M)  => 62
+; (mkint 60 3 'm)  => 63
+; (mkint 102 5 'M)  => 109
+; (mkint 105 5 'M)  => 105 ;; maxlimit kicks in
+(define mkint
   (lambda (root degree . args)
   ; (println args)
    (cond ((null? args) 
@@ -494,7 +494,7 @@
 ; Example:
 ; (mkrel 60 0 'pentatonic) ;; 60
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkrel
+(define mkrel
   (lambda (root degree mode)
         (car (mkscalestep root degree mode))))
 
@@ -535,7 +535,7 @@
 
 ;
 ;
-; mkmelody
+; MKMELODY
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Generates a random melody
 ;
@@ -548,7 +548,7 @@
 ; Example:
 ; (println (:mkmelody 4 60 'm '(-1) )) ; => (60 58 56 55)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define :mkmelody
+(define mkmelody
   (lambda (len . args)
   ; (println args)
    (cond ((null? args) ;; default / number-of-notes
@@ -611,7 +611,7 @@
 
 ;
 ;
-; :MKQUANT
+; MKQUANT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Wrapper around standard pc:quantize
 ;;

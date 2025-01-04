@@ -4,13 +4,12 @@
 ;; MIDI Functions for controlling Ableton LIVE mixer
 ;; These settings allow you to control various Mixer features of 8 Tracks at a time.
 ;;
-;; WARNING: any track over 8 cannot be controlled. EG drum track on ch:9 needs to be positioned as track:8 on LIVE mixer, if you want to control it this way
-;;
 ;;
 ;; PREREQUISITES: set up custom control surface settings using `UserConfiguration.txt`
 ;; This is located in a custom [Extempore] dir in: 
 ;; ~/Library/Preferences/Ableton/Live X.X.X/User Remote Scripts/Extempore/UserConfiguration.txt under [Globals]
 ;;
+;; WARNING: any track over 8 cannot be controlled. EG drum track on ch:9 needs to be positioned as track:8 on LIVE mixer, if you want to control it this way
 ;;
 ;; See also
 ;; - https://forum.ableton.com/viewtopic.php?t=140489

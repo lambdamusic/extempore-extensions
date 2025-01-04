@@ -8,7 +8,7 @@
 ;
 ; The main changes are:
 ;; 1) The MIDI OUT instrument is implicit and defaults to the symbol *mididevice*, which needs to be predefined
-;; 2) Channel is 0-based in xtm, but here it is 1-based
+;; 2) Channel is 0-based in xtm, but here it is 1-based (as in Ableton Live)
 ;; 3) The standard 'play' function is always MIDI (overrides Extempore 'play')
 ;; 4) Sensible defaults for MIDI signals 0-127 
 ;

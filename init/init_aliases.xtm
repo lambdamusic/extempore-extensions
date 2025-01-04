@@ -46,7 +46,6 @@
 
 (define sl slice)
 
-
 (define ifchance if-random)
 (define :ifchance if-random)
 (define chance if-random) ; 2021-03-07
@@ -58,29 +57,42 @@
 (define midic :midicc)
 (define mcc :mcc)
 
-
 (define mklist :mklist)
+
 (define :mkchord mkchord)
+
 (define :mkchordrandom mkchordrandom )
 (define mkchordr mkchordrandom )
 (define mkchord-random mkchordrandom )
 (define mkchord_r mkchordrandom )
+
 (define :mkchordbystep mkchordbystep )
 (define :mkchordsteps mkchordbystep )
+
 (define mkrelscale mkscalestep )
-(define mkchordiatonic mkchordia )
-(define mkchordiar mkchordiarandom )
-(define mkchordiatonicr mkchordiarandom )
-(define mkchordia_r mkchordiarandom )
-(define mkchordiatonic-random mkchordiarandom )
-(define mkchordia-random mkchordiarandom )
-(define mkscale :mkscale)
-(define mkrel :mkrel )
-(define mkint :mkint )
-(define mkmelody :mkmelody )
+
+(define mkchordia mkdiachord)
+(define mkchordiatonic mkdiachord)
+
+(define mkchordiarandom mkdiachordrandom)
+(define mkdiachordr mkdiachordrandom )
+(define mkchordiatonicr mkdiachordrandom )
+(define mkchordia_r mkdiachordrandom )
+(define mkchordiatonic-random mkdiachordrandom )
+(define mkchordia-random mkdiachordrandom )
+
+(define :mkscale mkscale)
+
+(define :mkrel mkrel )
+
+(define :mkint mkint )
+
+(define :mkmelody mkmelody )
+
 (define pc:quant mkquant)
 (define :pcquantize mkquant)
 (define pcquantize mkquant)
+
 (define pc:ran mkrandom)
 (define pcrandom mkrandom)
 (define :pcrandom mkrandom)
